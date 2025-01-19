@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutoSelector {
     // H! I've tested this on Shuffleboard 2024 and 2025, it only works on 2024
+    // This comment is likely outdated, as it was from when I was using 2024 WPI
     private SendableChooser<Command> chooser;
     @SuppressWarnings("unused")
     private ShuffleboardTab tab;

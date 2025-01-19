@@ -7,11 +7,16 @@ package frc.robot.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.awt.Container;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -30,9 +35,19 @@ import javax.swing.JTextPane;
 import javax.swing.plaf.DimensionUIResource;
 import javax.swing.text.html.HTMLDocument;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Robot;
 import frc.robot.test.TestUtil.InstantTest;
 import frc.robot.test.TestUtil.InstantTestMethod;
+import frc.robot.utility.Elastic;
 
 /** A system which will run all tests queued to it and display their results. @author H! */
 public class TestManager {
@@ -98,7 +113,6 @@ public class TestManager {
     protected static List<TestGroup> groupsToTest = new ArrayList<TestGroup>();
     protected static List<Test> testsToTest = new ArrayList<Test>();
 
-
     protected static int testIndex = 0;
 
     public static boolean testsFinished = false;
@@ -108,6 +122,9 @@ public class TestManager {
     protected static boolean testSelectionMade = false;
 
     protected static int cyclesRun = 0;
+
+    private static final String tabName = "Ammeter";
+    private static ArrayList<GenericEntry> groupSelectionEntries = new ArrayList<>();
 
 
 
@@ -192,6 +209,17 @@ public class TestManager {
         }
 
         if (!testSelectionMade) {
+            for (GenericEntry genericEntry : groupSelectionEntries) {
+                
+                System.out.println(
+                    genericEntry.toString() +
+                    " : " +
+                    genericEntry.getBoolean(false) +
+                    " / " +
+                    genericEntry.get().getBoolean()
+                );
+            }
+
             return;
         }
 
@@ -199,7 +227,7 @@ public class TestManager {
             // DEBUG
             //System.err.println("Tests Started");
         }*/
-
+        ;
         cyclesRun++;
         //System.out.println("#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#\n#");
         String[] testGroupNames = new String[groupsToTest.size()];
@@ -441,7 +469,84 @@ public class TestManager {
         for (int i = 0; i < groupsToTest.size(); i++) {
             testGroupNames[i] = groupsToTest.get(i).getName();
         }
+        
+        // Initialize group selector
+        var subsystemSelectionList = Shuffleboard.getTab(tabName).getLayout("Subsystem Selection", BuiltInLayouts.kList)
+            .withPosition(0, 0)
+            .withSize(2, 4)
+            .withProperties(Map.of("Label Position", "HIDDEN"))
+        ;
+        
+        groupSelectionEntries = new ArrayList<>();
 
+        for (int i = 0; i < testGroupNames.length; i++) {
+            final int thisI = i;
+
+            // Check if the item is already in the list, and if it is, find it.
+            Optional<ShuffleboardComponent<?>> preexistingComponent = subsystemSelectionList
+                .getComponents()
+                .stream()
+                .dropWhile((c) -> c.getTitle() != testGroupNames[thisI])
+                .findFirst()
+            ;
+                
+            GenericEntry currentEntry;
+            if (preexistingComponent.isPresent()) {
+                System.out.println("\n\nElement existed already\n\n");
+                currentEntry = ((SimpleWidget) preexistingComponent.get()).getEntry();
+            } else {
+                System.out.println("\n\nElement added\n\n");
+                currentEntry = subsystemSelectionList.add(testGroupNames[i], true)
+                    .withWidget(BuiltInWidgets.kToggleSwitch)
+                    .getEntry()
+                ;
+            }
+
+            groupSelectionEntries.add(currentEntry);
+            currentEntry.setBoolean(true);
+        }
+
+        // Add confirmation button
+        InstantCommand confirmGroupSelectionCommand = new InstantCommand(() -> {
+            /*var subsystemSelectionListInternal = Shuffleboard.getTab(tabName).getLayout("Subsystem Selection", BuiltInLayouts.kList)
+                .withPosition(0, 0)
+                .withSize(2, 4)
+                .withProperties(Map.of("Label Position", "HIDDEN"))
+            ;
+            for (var component : subsystemSelectionList.getComponents()) {
+                var entry = ((SimpleWidget) component).getEntry();
+                System.out.println(
+                    entry.toString() +
+                    " : " +
+                    entry.getBoolean(false) +
+                    " / " +
+                    entry.get().getBoolean()
+                );
+            } */
+            int numberRemoved = 0;
+            for (int i = 0; i < groupSelectionEntries.size(); i++) {
+                if (!groupSelectionEntries.get(i).getBoolean(false)) {
+                    groupsToTest.remove(i - numberRemoved);
+                    numberRemoved++;
+                }
+            }
+            testSelectionMade = true;
+        });
+
+        if (!Shuffleboard.getTab(tabName).getComponents().stream().anyMatch((c) -> c.getTitle() == "Confirm Selection Choices")) {
+            Shuffleboard.getTab(tabName).add("Confirm Selection Choices", confirmGroupSelectionCommand)
+                .withWidget(BuiltInWidgets.kCommand)
+                .withPosition(0, 4)
+                .withSize(2, 1)
+            ;
+        }
+        
+
+        /*tab.add("Max speed", 1)
+            .withWidget(BuiltInWidgets.kNumberSlider)
+            .getEntry();*/
+
+        /*
         // Root component
         JFrame frame = new JFrame();
         frame.setLayout(new GridBagLayout());
@@ -495,7 +600,7 @@ public class TestManager {
 
         frame.pack();
 
-        frame.setVisible(true);
+        frame.setVisible(true);*/
     }
 
 
