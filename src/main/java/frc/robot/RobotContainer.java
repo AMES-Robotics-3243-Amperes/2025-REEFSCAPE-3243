@@ -287,7 +287,7 @@ public class RobotContainer {
     primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
     primaryController.leftBumper().onTrue(new ElevatorZeroCommand(subsystemElevator));
 
-    primaryController.x().onTrue(new ParallelCommandGroup(
+    primaryController.x().or(primaryController.rightBumper()).onTrue(new ParallelCommandGroup(
         new ElevatorMoveToPositionCommand(subsystemElevator, Setpoint.Store.height),
         new InstantCommand(
             () -> {
