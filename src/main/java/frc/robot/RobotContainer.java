@@ -64,7 +64,7 @@ public class RobotContainer {
   private JoyUtil secondaryController = new JoyUtil(1);
 
   // Path Factory for auto routine
-  PathFactory pathFactory = PathFactory.newFactory();
+  // PathFactory pathFactory = PathFactory.newFactory();
 
   //
   // Subsystems
@@ -119,49 +119,49 @@ public class RobotContainer {
         .add(
             ScoreIntakeAutoCommandBuilder.buildAuto(
                 FieldConstants.AutonomousPaths.blueTopToIntakePositions,
-                pathFactory, subsystemClaw, subsystemElevator,
+                subsystemClaw, subsystemElevator,
                 subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
             "Blue Top")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.blueMiddleToTopIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Blue Middle -> Top")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.blueMiddleToBottomIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Blue Middle -> Bottom")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Blue Bottom")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.redTopToIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Red Top")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.redMiddleToTopIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Red Middle -> Top")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.redMiddleToBottomIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Red Middle -> Bottom")
         .add(
           ScoreIntakeAutoCommandBuilder.buildAuto(
               FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
-              pathFactory, subsystemClaw, subsystemElevator,
+              subsystemClaw, subsystemElevator,
               subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
           "Red Bottom");
   }

@@ -116,20 +116,28 @@ public class ScoreIntakeAutoCommandBuilder {
             new PerformAtTask(targetRotation, new DeployClawCommand(diffClaw, intakePower)));
   }
 
-  public static Command buildAuto(List<Pose2d> targetPositions, PathFactory pathFactory,
+  public static Command buildAuto(List<Pose2d> targetPositions,
       SubsystemClaw diffClaw, SubsystemElevator elevator, SubsystemSwerveDrivetrain drivetrain,
       List<Pair<Setpoint, Boolean>> targetSetpoints) {
-    Iterator<Pose2d> positions = targetPositions.iterator();
-    Iterator<Pair<Setpoint, Boolean>> setpoints = targetSetpoints.iterator();
+    Command command = new ProxyCommand(() -> {
+      PathFactory pathFactory = PathFactory.newFactory();
+      Iterator<Pose2d> positions = targetPositions.iterator();
+      Iterator<Pair<Setpoint, Boolean>> setpoints = targetSetpoints.iterator();
+  
+      while (positions.hasNext() && setpoints.hasNext()) {
+        Pair<Setpoint, Boolean> setpoint = setpoints.next();
+        moveToPositionTaskBuilder(positions.next(), pathFactory, diffClaw, elevator, setpoint.getFirst(),
+            setpoint.getFirst().offset, setpoint.getSecond());
+      }
+  
+      return pathFactory.interpolateFromStart(true).buildCommand(
+          drivetrain, FollowConstants.xyController(), FollowConstants.xyController(),
+          FollowConstants.thetaController());
+      }
+    );
 
-    while (positions.hasNext() && setpoints.hasNext()) {
-      Pair<Setpoint, Boolean> setpoint = setpoints.next();
-      moveToPositionTaskBuilder(positions.next(), pathFactory, diffClaw, elevator, setpoint.getFirst(),
-          setpoint.getFirst().offset, setpoint.getSecond());
-    }
+    command.addRequirements(drivetrain, diffClaw, elevator);
 
-    return pathFactory.interpolateFromStart(true).buildCommand(
-        drivetrain, FollowConstants.xyController(), FollowConstants.xyController(),
-        FollowConstants.thetaController());
+    return command;
   }
 }
