@@ -16,7 +16,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemSwerveDrivetrain;
 import frc.robot.DataManager.Setpoint;
@@ -26,6 +28,7 @@ import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.SplineConstants.FollowConstants;
 import frc.robot.commands.claw.DeployClawCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
+import frc.robot.commands.elevator.ElevatorZeroCommand;
 import frc.robot.splines.PathFactory;
 import frc.robot.splines.interpolation.LinearInterpolator;
 import frc.robot.splines.tasks.FinishByTask;
@@ -75,7 +78,6 @@ public class ScoreIntakeAutoCommandBuilder {
       }
 
       PathFactory pathFactory = PathFactory.newFactory();
-
       pathFactory
           .interpolateFromStart(true)
           .interpolator(new LinearInterpolator())
@@ -93,7 +95,7 @@ public class ScoreIntakeAutoCommandBuilder {
     return command;
   }
 
-  public static void moveToPositionTaskBuilder(Pose2d tagPosition, PathFactory pathFactory,
+  public static Pose2d moveToPositionTaskBuilder(Pose2d tagPosition, PathFactory pathFactory,
       SubsystemClaw diffClaw, SubsystemElevator elevator, Setpoint targetSetpoint, double tagOffset, boolean scoring) {
     double distanceFromTag = 0.5;
     Transform2d offset = new Transform2d(new Translation2d(distanceFromTag, tagOffset), new Rotation2d());
@@ -105,15 +107,29 @@ public class ScoreIntakeAutoCommandBuilder {
       intakePower = -Setpoints.intakePower;
     }
 
-    pathFactory
-        .addTask(targetPosition, new FinishByTask(new ElevatorMoveToPositionCommand(elevator, targetSetpoint.height)))
-        .addTask(targetPosition, new FinishByTask(new InstantCommand(
-            () -> {
-              diffClaw.setOutsidePosition(targetSetpoint.angle);
-            },
-            diffClaw)))
-        .addTask(targetPosition,
-            new PerformAtTask(targetRotation, new DeployClawCommand(diffClaw, intakePower)));
+    if (scoring) {
+      pathFactory
+          .addTask(targetPosition, new FinishByTask(new ElevatorMoveToPositionCommand(elevator, targetSetpoint.height)))
+          .addTask(targetPosition, new FinishByTask(new InstantCommand(
+              () -> {
+                diffClaw.setOutsidePosition(targetSetpoint.angle);
+              },
+              diffClaw)))
+          .addTask(targetPosition,
+              new PerformAtTask(targetRotation, new DeployClawCommand(diffClaw, 0.6)));
+    } else {
+      pathFactory
+          .addTask(targetPosition, new FinishByTask(new ElevatorMoveToPositionCommand(elevator, targetSetpoint.height)))
+          .addTask(targetPosition, new FinishByTask(new InstantCommand(
+              () -> {
+                diffClaw.setOutsidePosition(targetSetpoint.angle);
+              },
+              diffClaw)))
+          .addTask(targetPosition,
+              new PerformAtTask(targetRotation, new DeployClawCommand(diffClaw, -0.6)));
+    }
+
+    return new Pose2d(targetPosition, targetRotation);
   }
 
   public static Command buildAuto(List<Pose2d> targetPositions,
@@ -121,20 +137,37 @@ public class ScoreIntakeAutoCommandBuilder {
       List<Pair<Setpoint, Boolean>> targetSetpoints) {
     Command command = new ProxyCommand(() -> {
       PathFactory pathFactory = PathFactory.newFactory();
+      pathFactory
+          .interpolateFromStart(true)
+          .interpolator(new LinearInterpolator())
+          .taskDampen((remainingLength) -> 2.2 * remainingLength + 0.05);
+
       Iterator<Pose2d> positions = targetPositions.iterator();
       Iterator<Pair<Setpoint, Boolean>> setpoints = targetSetpoints.iterator();
-  
+      Command waitCommand = new WaitCommand(3);
+      waitCommand.addRequirements(elevator);
+
       while (positions.hasNext() && setpoints.hasNext()) {
         Pair<Setpoint, Boolean> setpoint = setpoints.next();
-        moveToPositionTaskBuilder(positions.next(), pathFactory, diffClaw, elevator, setpoint.getFirst(),
+        Pose2d position = positions.next();
+        Pose2d targetPose = moveToPositionTaskBuilder(position, pathFactory, diffClaw, elevator, setpoint.getFirst(),
             setpoint.getFirst().offset, setpoint.getSecond());
+
+        pathFactory
+            .addTask(targetPose.getTranslation(), new PerformAtTask(targetPose.getRotation(), waitCommand))
+            .addTask(targetPose.getTranslation(), new PerformAtTask(targetPose.getRotation(), new ParallelCommandGroup(
+                new ElevatorMoveToPositionCommand(elevator, Setpoint.Store.height),
+                new InstantCommand(
+                    () -> {
+                      diffClaw.setOutsidePosition(Setpoint.Store.angle);
+                    },
+                    diffClaw))));
       }
-  
+
       return pathFactory.interpolateFromStart(true).buildCommand(
           drivetrain, FollowConstants.xyController(), FollowConstants.xyController(),
           FollowConstants.thetaController());
-      }
-    );
+    });
 
     command.addRequirements(drivetrain, diffClaw, elevator);
 

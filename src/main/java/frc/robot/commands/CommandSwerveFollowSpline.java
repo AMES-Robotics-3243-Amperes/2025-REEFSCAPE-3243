@@ -40,6 +40,10 @@ public class CommandSwerveFollowSpline extends Command {
 
   @Override
   public void initialize() {
+    thetaController.reset(MathUtil.angleModulus(path.getCurrentPosition().getRotation().getRadians()));
+    xController.reset();
+    yController.reset();
+
     path.initialize();
     this.minimumRotationTolerance = path.getMinimumRotationTolerance();
   }

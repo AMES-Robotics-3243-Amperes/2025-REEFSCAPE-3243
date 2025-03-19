@@ -20,6 +20,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.DataManager.Setpoint;
 import frc.robot.splines.interpolation.CubicInterpolator;
+import frc.robot.splines.interpolation.LinearInterpolator;
 import frc.robot.splines.interpolation.SplineInterpolator;
 
 /**
@@ -52,13 +54,13 @@ public final class Constants {
     public static final double coeff1 = 0.2;
     public static final double coeff2 = 0.8;
 
-    public static final double leftTriggerSpeedMultiplier = 0.2;
-    public static final double rightTriggerSpeedMultiplier = 5.0;
+    public static final double leftTriggerSpeedMultiplier = 2.5;
+    public static final double rightTriggerSpeedMultiplier = 0.3;
   }
 
   public static final class SwerveConstants {
     public static final class ControlConstants {
-      public static final double movingSpeed = 0.7;
+      public static final double movingSpeed = 1.2;
       public static final double rotationSpeed = 1.2 * Math.PI;
     }
 
@@ -162,8 +164,8 @@ public final class Constants {
     }
 
     public static class Control {
-      public static final double upNudgeVelocity = 0.6;
-      public static final double downNudgeVelocity = -0.6;
+      public static final double upNudgeVelocity = 1.0;
+      public static final double downNudgeVelocity = -1.0;
     }
 
     public static class SpeedSettings {
@@ -191,14 +193,14 @@ public final class Constants {
     public static final double min = 0.0;
     public static final double starting = min;
     public static final double store = 0.05;
-    public static final double loading = 0.528;//Units.inchesToMeters(37 - angledOffset23);
+    public static final double loading = 0.6;//Units.inchesToMeters(37 - angledOffset23);
     public static final double L1 = 0.4;//Units.inchesToMeters(18 + angledOffset23);
-    public static final double L2 = 0.74;//Units.inchesToMeters(31.2 + angledOffset23);
-    public static final double L3 = 1.01;//Units.inchesToMeters(47.025 + angledOffset23);
-    public static final double L4 = 1.741;//Units.inchesToMeters(72 + angledOffset4);
+    public static final double L2 = 0.64;//Units.inchesToMeters(31.2 + angledOffset23);
+    public static final double L3 = 1.05;//Units.inchesToMeters(47.025 + angledOffset23);
+    public static final double L4 = 1.74;//Units.inchesToMeters(72 + angledOffset4);
     public static final double A1 = 0.786; // First Algae
     public static final double A2 = 1.142; // Second Algae
-    public static final double max = 1.741;//Units.inchesToMeters(85);
+    public static final double max = 1.74;//Units.inchesToMeters(85);
   }
 
   public static final class FieldConstants {
@@ -360,6 +362,33 @@ public final class Constants {
 
     public static final class AutonomousPaths {
       // Testing autonomous
+      public static final ArrayList<Pair<Setpoint, Boolean>> testingSetpoints = new ArrayList<Pair<Setpoint, Boolean>>(
+        Arrays.asList(Pair.of(Setpoint.L4Left, true))
+      );
+
+      public static final ArrayList<Pose2d> testingPositions = new ArrayList<Pose2d>(
+        Arrays.asList(FieldConstants.blueReef4.toPose2d()));
+      
+      // L4 and Sideways
+      public static final ArrayList<Pair<Setpoint, Boolean>> l4ThenSidewaysSetpoints = new ArrayList<Pair<Setpoint, Boolean>>(
+        Arrays.asList(Pair.of(Setpoint.L4Left, true), Pair.of(Setpoint.Start, false))
+      );
+
+      public static final ArrayList<Pose2d> l4ThenSidewaysPositions = new ArrayList<Pose2d>(
+        Arrays.asList(FieldConstants.blueReef3.toPose2d(),
+        FieldConstants.blueReef3.toPose2d().transformBy(new Transform2d(0, Units.inchesToMeters(50), DataManager.instance().robotPosition.get().getRotation())))
+      );
+
+      // L4 and Intake
+      public static final ArrayList<Pair<Setpoint, Boolean>> l4ThenIntakeSetpoints = new ArrayList<Pair<Setpoint, Boolean>>(
+        Arrays.asList(Pair.of(Setpoint.L4Left, true), Pair.of(Setpoint.Start, false), Pair.of(Setpoint.IntakeLeft, false))
+      );
+
+      public static final ArrayList<Pose2d> l4ThenIntakePositions = new ArrayList<Pose2d>(
+        Arrays.asList(FieldConstants.redReef3.toPose2d(),
+        FieldConstants.blueReef3.toPose2d().transformBy(new Transform2d(0, Units.inchesToMeters(50), DataManager.instance().robotPosition.get().getRotation())),
+        FieldConstants.blueCoralLoadingTop.toPose2d())
+      );
 
       // Scoring/Intake Setpoints
       public static final ArrayList<Pair<Setpoint, Boolean>> intakeScoreBackAndForthSetpoints = new ArrayList<Pair<Setpoint, Boolean>>(
@@ -425,22 +454,22 @@ public final class Constants {
         new Transform3d(new Pose3d(),
           new Pose3d(new Translation3d(Units.inchesToMeters(6.7),
               Units.inchesToMeters(11), Units.inchesToMeters(7.1875)),
-            new Rotation3d(0, 0, Units.degreesToRadians(4)))),
-        FieldConstants.fieldLayout),
-      new PhotonUnit("BackRightCamera",
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        new Transform3d(new Pose3d(),
-          new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-              Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
-            new Rotation3d(0, 0, Units.degreesToRadians(215)))),
-        FieldConstants.fieldLayout),
-      new PhotonUnit("BackLeftCamera",
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        new Transform3d(new Pose3d(),
-          new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-                Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
-              new Rotation3d(0, 0, Units.degreesToRadians(145)))),
+            new Rotation3d(0, 0, Units.degreesToRadians(0)))),
         FieldConstants.fieldLayout));
+      // new PhotonUnit("BackRightCamera",
+      //   PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+      //   new Transform3d(new Pose3d(),
+      //     new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+      //         Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
+      //       new Rotation3d(0, 0, Units.degreesToRadians(215)))),
+      //   FieldConstants.fieldLayout),
+      // new PhotonUnit("BackLeftCamera",
+      //   PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+      //   new Transform3d(new Pose3d(),
+      //     new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+      //           Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
+      //         new Rotation3d(0, 0, Units.degreesToRadians(145)))),
+      //   FieldConstants.fieldLayout));
 
     public static final double poseEstimatorAmbiguityScaleFactor = 2;
     public static final double photonUnitAmbiguityCutoff = 0.1;
@@ -455,19 +484,19 @@ public final class Constants {
     }
 
     public static final class TaskConstants {
-      public static final Rotation2d defaultRotationTolerance = Rotation2d.fromDegrees(1);
+      public static final Rotation2d defaultRotationTolerance = Rotation2d.fromDegrees(2.5);
       public static final double defaultPositionTolerance = Units.inchesToMeters(0.3);
       public static final double defaultPositionBuffer = 0.1;
     }
 
     public static final class FollowConstants {
-      public static final SplineInterpolator defaultInterpolator = new CubicInterpolator();
-      public static final double maxSpeed = 4;
+      public static final SplineInterpolator defaultInterpolator = new LinearInterpolator(); // Could change to cubic
+      public static final double maxSpeed = 2.8;
       public static final double maxCentrifugalAcceleration = 2;
       public static final double maxAccelAfterTask = 1.5;
       public static final boolean interpolateFromStart = true;
 
-      public static final double staticThetaVelocity = 0.4;
+      public static final double staticThetaVelocity = 0.12;
 
       /**
        * Returns a sensible default x/y PID controller for spline following
@@ -481,7 +510,7 @@ public final class Constants {
        */
       public static final ProfiledPIDController thetaController() {
         ProfiledPIDController thetaController =
-          new ProfiledPIDController(1.8, 0.2, 0, new Constraints(3 * Math.PI, 6 * Math.PI));
+          new ProfiledPIDController(1.2, 0, 0, new Constraints(50 * Math.PI, 50 * Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         thetaController.setIZone(3 * Math.PI / 16);
         return thetaController;
@@ -556,16 +585,16 @@ public final class Constants {
   // Important setpoints for the claw
   public static final class Setpoints {
     // Constant intake power (just invert to deposit)
-    public static final double intakePower = 0.4;
+    public static final double intakePower = 0.7;
 
     // Angles for the different pipe deposit levels, and an angle for intake
     public static final class LevelAngles {
-      public static final double Start = 0.75;
-      public static final double Intake = 0.658;
+      public static final double Start = 0.63;
+      public static final double Intake = 0.524;
       public static final double Store = 0.7;
       public static final double L1 = 0.48;
-      public static final double L23 = 0.49;//0.48;
-      public static final double L4 = 0.49;
+      public static final double L23 = 0.45;//0.48;
+      public static final double L4 = 0.367;
       public static final double Transit = 0.7;
       public static final double Algae = 0.554;
     }

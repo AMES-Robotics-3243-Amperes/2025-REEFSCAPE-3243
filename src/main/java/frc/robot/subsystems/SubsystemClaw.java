@@ -178,20 +178,11 @@ public class SubsystemClaw extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     pivotControllerCalculate = pivotController.calculate(pivotEncoder.getPosition(), targetPivotPosition);
-    staticTerm = gravityCompensation * Math.cos((pivotEncoder.getPosition() - 0.5859) * Math.PI * 2);
 
     smoothedCurrentDifference = filter.calculate(rightMotor.getOutputCurrent() - leftMotor.getOutputCurrent());
 
-    motorGroup.setPivotOutput(pivotControllerCalculate + staticTerm);
+    motorGroup.setPivotOutput(pivotControllerCalculate);
     motorGroup.setRollerOutput(intakePower);
     motorGroup.update();
-  }
-
-  public void setGravityCompensation(double newValue) {
-    gravityCompensation = newValue;
-  }
-
-  public double getGravityCompensation() {
-    return gravityCompensation;
   }
 }

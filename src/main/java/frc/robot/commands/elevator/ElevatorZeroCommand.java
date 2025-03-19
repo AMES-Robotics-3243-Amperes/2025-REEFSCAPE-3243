@@ -10,7 +10,7 @@ import frc.robot.subsystems.SubsystemElevator;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElevatorZeroCommand extends Command {
   private SubsystemElevator elevator;
-  private final double speed = 0.05;
+  private final double speed = 0.30;
   private final double currentThreshold = 10.0;
   private int counter = 0;
   private final int timerLength = 50;

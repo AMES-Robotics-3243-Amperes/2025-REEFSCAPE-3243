@@ -21,6 +21,7 @@ import frc.robot.Constants.SplineConstants.FollowConstants;
 import frc.robot.DataManager.Setpoint;
 import frc.robot.commands.CommandClimber;
 import frc.robot.commands.CommandSwerveFollowSpline;
+import frc.robot.commands.CommandSwerveTaxi;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.automatics.ScoreIntakeAutoCommandBuilder;
@@ -221,27 +222,27 @@ public class RobotContainer {
     // Auto score in nearest L4 (Left or Right selected by D-pad)
     primaryController.y().and(primaryController.pov(225)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L2Right, -Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L2Right, Setpoint.L2Right.offset, true));
 
     primaryController.y().and(primaryController.pov(135)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L2Left, Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L2Left, Setpoint.L2Left.offset, true));
 
     primaryController.y().and(primaryController.pov(270)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L3Right, -Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L3Right, Setpoint.L3Right.offset, true));
 
     primaryController.y().and(primaryController.pov(90)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L3Left, Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L3Left, Setpoint.L2Left.offset, true));
 
     primaryController.y().and(primaryController.pov(315)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L4Right, -Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L4Right, Setpoint.L4Right.offset, true));
 
     primaryController.y().and(primaryController.pov(45)).onTrue(
         ScoreIntakeAutoCommandBuilder.scoreIntakeAutoCommand(subsystemSwerveDrivetrain, subsystemClaw,
-            subsystemElevator, Setpoint.L4Left, Units.inchesToMeters(offsetInches), true));
+            subsystemElevator, Setpoint.L4Left, Setpoint.L4Left.offset, true));
 
     // Manual intaking/depositing, elevator movement, reef setpoints
     secondaryController.leftBumper()
@@ -306,6 +307,14 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoSelector.get();
+    return new CommandSwerveTaxi(subsystemSwerveDrivetrain);
+    // return ScoreIntakeAutoCommandBuilder.buildAuto(
+    //   FieldConstants.AutonomousPaths.testingPositions,
+    //   subsystemClaw, subsystemElevator,
+    //   subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.testingSetpoints);
+    // return new SequentialCommandGroup(new CommandSwerveTaxi(subsystemSwerveDrivetrain), ScoreIntakeAutoCommandBuilder.buildAuto(
+    //   FieldConstants.AutonomousPaths.testingPositions,
+    //   subsystemClaw, subsystemElevator,
+    //   subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.testingSetpoints));
   }
 }
