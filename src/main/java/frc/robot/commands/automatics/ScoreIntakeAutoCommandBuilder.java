@@ -4,6 +4,7 @@
 
 package frc.robot.commands.automatics;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,8 +48,29 @@ public class ScoreIntakeAutoCommandBuilder {
       SubsystemSwerveDrivetrain drivetrain, SubsystemClaw diffClaw, SubsystemElevator elevator,
       Setpoint reefPosition, double tagOffset, boolean scoring) {
     Command command = new ProxyCommand(() -> {
-      // Find the closest tag to the robot's current position
       Pose2d currentPose = DataManager.instance().robotPosition.get();
+      Pose2d closestTag = ScoreIntakeAutoCommandBuilder.closestTag(currentPose, scoring);
+
+      PathFactory pathFactory = PathFactory.newFactory();
+      pathFactory
+          .interpolateFromStart(true)
+          .interpolator(new LinearInterpolator())
+          .taskDampen((remainingLength) -> 2.2 * remainingLength + 0.05);
+      moveToPositionTaskBuilder(closestTag, pathFactory, diffClaw, elevator, reefPosition,
+          tagOffset, scoring);
+
+      return pathFactory.buildCommand(
+          drivetrain,
+          FollowConstants.xyController(),
+          FollowConstants.xyController(),
+          FollowConstants.thetaController());
+    });
+    command.addRequirements(drivetrain, diffClaw, elevator);
+    return command;
+  }
+
+  public static Pose2d closestTag(Pose2d currentPose, boolean scoring) {
+      // Find the closest tag to the robot's current position
       Translation2d currentPosition = currentPose.getTranslation();
       double minDistance = Double.MAX_VALUE;
 
@@ -75,24 +97,9 @@ public class ScoreIntakeAutoCommandBuilder {
           minDistance = potentialMin;
           closestTag = tagPosition;
         }
-      }
+    }
 
-      PathFactory pathFactory = PathFactory.newFactory();
-      pathFactory
-          .interpolateFromStart(true)
-          .interpolator(new LinearInterpolator())
-          .taskDampen((remainingLength) -> 2.2 * remainingLength + 0.05);
-      moveToPositionTaskBuilder(closestTag, pathFactory, diffClaw, elevator, reefPosition,
-          tagOffset, scoring);
-
-      return pathFactory.buildCommand(
-          drivetrain,
-          FollowConstants.xyController(),
-          FollowConstants.xyController(),
-          FollowConstants.thetaController());
-    });
-    command.addRequirements(drivetrain, diffClaw, elevator);
-    return command;
+    return closestTag;
   }
 
   public static Pose2d moveToPositionTaskBuilder(Pose2d tagPosition, PathFactory pathFactory,
@@ -172,5 +179,35 @@ public class ScoreIntakeAutoCommandBuilder {
     command.addRequirements(drivetrain, diffClaw, elevator);
 
     return command;
+  }
+
+  public static Command buildL1Auto(SubsystemClaw diffClaw, SubsystemElevator elevator, SubsystemSwerveDrivetrain drivetrain,
+    Pose2d robotPosition) {
+      PathFactory pathFactory = PathFactory.newFactory();
+      pathFactory
+      .interpolateFromStart(true)
+      .interpolator(new LinearInterpolator())
+      .taskDampen((remainingLength) -> 2.2 * remainingLength + 0.05);
+
+      Pose2d closestTag = closestTag(robotPosition, true);
+      double distanceFromTag = 0.5;
+      Transform2d offset = new Transform2d(new Translation2d(distanceFromTag, Setpoint.L1Left.offset), new Rotation2d());
+      Translation2d targetPosition = closestTag.plus(offset).getTranslation();
+      Rotation2d targetRotation = closestTag.getRotation().plus(Rotation2d.fromDegrees(180));
+
+      pathFactory
+      .addTask(targetPosition, new FinishByTask(new ElevatorMoveToPositionCommand(elevator, Setpoint.L1Left.height)))
+      .addTask(targetPosition, new FinishByTask(new InstantCommand(
+          () -> {
+            diffClaw.setOutsidePosition(Setpoint.L1Left.angle);
+          },
+          diffClaw)))
+      .addTask(targetPosition, new PerformAtTask(targetRotation, new DeployClawCommand(diffClaw, 0.6)));
+
+      return pathFactory.buildCommand(
+        drivetrain,
+        FollowConstants.xyController(),
+        FollowConstants.xyController(),
+        FollowConstants.thetaController());
   }
 }

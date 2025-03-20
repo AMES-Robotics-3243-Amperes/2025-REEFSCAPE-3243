@@ -42,7 +42,6 @@ public class SubsystemClaw extends SubsystemBase {
   private SparkMaxConfig leftConfig = new SparkMaxConfig();
 
   // Motor group and PID controller to control movement via Matrix multiplication and PID control
-  private DifferentialMotorGroup motorGroup;
   private PIDController pivotController;
 
   // Starting values for the arm
@@ -54,56 +53,16 @@ public class SubsystemClaw extends SubsystemBase {
   public double smoothedCurrentDifference;
 
   // Gravity compensation (secretly feedforward)
-  private double gravityCompensation = Constants.DifferentialArm.defaultGravityCompensation;
+  // private double gravityCompensation = Constants.DifferentialArm.defaultGravityCompensation;
 
   private AbsoluteEncoder pivotEncoder;
-  // private ArmFeedforward feedforward;
 
-  // Nested class to perform updates to the linear system through matrix multiplication
-  private static class DifferentialMotorGroup {
-    private MotorController rightMotor;
-    private MotorController leftMotor;
+  public void update() {
+    double pivotOutput = MathUtil.clamp(pivotControllerCalculate, -1.0, 1.0);
+    double rollerOutput = MathUtil.clamp(intakePower, -1.0, 1.0);
 
-    private double pivotOutput;
-    private double rollerOutput;
-
-    // Matrix used to calculate the required inputs
-    private static Matrix<N2, N2> inverseDifferentialMatrix = new Matrix<N2, N2>(N2.instance, N2.instance,
-        new double[] {
-            1.0, 1.0,
-            1.0, -1.0
-        });
-
-    // Class to represent the differential motors
-    public DifferentialMotorGroup(MotorController motorForward, MotorController motorReverse) {
-      this.rightMotor = motorForward;
-      this.leftMotor = motorReverse;
-    }
-
-    // Calculates the rate at which to spin the motors based on where they should be
-    // Basically, we calculate the required inputs given outputs
-    private void update() {
-      Matrix<N2, N1> mechanismOutputs = new Matrix<N2, N1>(N2.instance, N1.instance,
-          new double[] { pivotOutput, rollerOutput });
-      Vector<N2> mechanismInputs = new Vector<N2>(inverseDifferentialMatrix.times(mechanismOutputs));
-
-      // Scales the motor values to be between 0 and 1
-      double maxMotorOutput = Math.max(mechanismInputs.get(0), mechanismInputs.get(1));
-      if (maxMotorOutput > 1.0) {
-        mechanismInputs.div(maxMotorOutput);
-      }
-
-      rightMotor.set(mechanismInputs.get(0));
-      leftMotor.set(mechanismInputs.get(1));
-    }
-
-    public void setPivotOutput(double angle) {
-      pivotOutput = MathUtil.clamp(angle, -0.4, 0.4);
-    }
-
-    public void setRollerOutput(double speed) {
-      rollerOutput = MathUtil.clamp(speed, -1.0, 1.0);
-    }
+    rightMotor.set(pivotOutput);
+    leftMotor.set(rollerOutput);
   }
 
   // Sets the target position for the absolute encoder
@@ -124,11 +83,6 @@ public class SubsystemClaw extends SubsystemBase {
     filter.reset();
   }
 
-  // Helper function for setOutsidePosition()
-  // private double convertRadiansToRotations(double angle) {
-  //   return (angle / (2 * Math.PI)) + DifferentialArm.encoderOffset;
-  // }
-
   /** Creates a new SubsystemEndAffectorDifferential. */
   public SubsystemClaw(/* Ultrasonic rangeFinder */) {
     rightConfig.inverted(true);
@@ -144,7 +98,7 @@ public class SubsystemClaw extends SubsystemBase {
 
     pivotEncoder = rightMotor.getAbsoluteEncoder();
 
-    motorGroup = new DifferentialMotorGroup(rightMotor, leftMotor);
+    // motorGroup = new DifferentialMotorGroup(rightMotor, leftMotor);
     pivotController = new PIDController(DifferentialArm.PID.P, DifferentialArm.PID.I, DifferentialArm.PID.D);
     pivotController.reset();
 
@@ -180,9 +134,6 @@ public class SubsystemClaw extends SubsystemBase {
     pivotControllerCalculate = pivotController.calculate(pivotEncoder.getPosition(), targetPivotPosition);
 
     smoothedCurrentDifference = filter.calculate(rightMotor.getOutputCurrent() - leftMotor.getOutputCurrent());
-
-    motorGroup.setPivotOutput(pivotControllerCalculate);
-    motorGroup.setRollerOutput(intakePower);
-    motorGroup.update();
+    update();
   }
 }

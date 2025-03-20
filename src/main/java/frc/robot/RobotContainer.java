@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -116,55 +118,87 @@ public class RobotContainer {
   }
 
   private void setAutoCommands() {
+    // autoSelector
+    //     .add(
+    //         ScoreIntakeAutoCommandBuilder.buildAuto(
+    //             FieldConstants.AutonomousPaths.blueTopToIntakePositions,
+    //             subsystemClaw, subsystemElevator,
+    //             subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //         "Blue Top")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.blueMiddleToTopIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Blue Middle -> Top")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.blueMiddleToBottomIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Blue Middle -> Bottom")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Blue Bottom")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.redTopToIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Red Top")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.redMiddleToTopIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Red Middle -> Top")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.redMiddleToBottomIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Red Middle -> Bottom")
+    //     .add(
+    //       ScoreIntakeAutoCommandBuilder.buildAuto(
+    //           FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
+    //           subsystemClaw, subsystemElevator,
+    //           subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
+    //       "Red Bottom");
     autoSelector
+        // Basic idea, change values for testing
         .add(
-            ScoreIntakeAutoCommandBuilder.buildAuto(
-                FieldConstants.AutonomousPaths.blueTopToIntakePositions,
-                subsystemClaw, subsystemElevator,
-                subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-            "Blue Top")
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.blueBargeLeft.toPose2d().plus(new Transform2d(-1, 0, new Rotation2d()))),
+          "Blue Top"
+        )
         .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.blueMiddleToTopIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Blue Middle -> Top")
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.blueReef3.toPose2d().plus(new Transform2d(1, 0, new Rotation2d(Math.PI)))),
+          "Blue Middle"
+        )
         .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.blueMiddleToBottomIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Blue Middle -> Bottom")
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.redBargeLeft.toPose2d().plus(new Transform2d(-1, 0, new Rotation2d()))),
+          "Blue Bottom"
+        )
         .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Blue Bottom")
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.blueBargeRight.toPose2d().plus(new Transform2d(1, 0, new Rotation2d()))),
+          "Red Top"
+        )
         .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.redTopToIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Red Top")
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.redReef3.toPose2d().plus(new Transform2d(-1, 0, new Rotation2d(Math.PI)))),
+          "Red Middle"
+        )
         .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.redMiddleToTopIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Red Middle -> Top")
-        .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.redMiddleToBottomIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Red Middle -> Bottom")
-        .add(
-          ScoreIntakeAutoCommandBuilder.buildAuto(
-              FieldConstants.AutonomousPaths.blueBottomToIntakePositions,
-              subsystemClaw, subsystemElevator,
-              subsystemSwerveDrivetrain, FieldConstants.AutonomousPaths.intakeScoreBackAndForthSetpoints),
-          "Red Bottom");
+          ScoreIntakeAutoCommandBuilder.buildL1Auto(subsystemClaw, subsystemElevator, subsystemSwerveDrivetrain,
+          FieldConstants.redBargeRight.toPose2d().plus(new Transform2d(1, 0, new Rotation2d()))),
+          "Red Bottom"
+        );
   }
 
   /**
