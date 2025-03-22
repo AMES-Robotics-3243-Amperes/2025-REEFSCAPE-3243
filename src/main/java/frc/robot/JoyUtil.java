@@ -1,8 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -24,12 +22,8 @@ import frc.robot.Constants.JoyUtilConstants;
  * </p>
  */
 public class JoyUtil extends CommandXboxController {
-  private static final double sqrt2Over2 = Math.sqrt(2) / 2;
   private final double deadzone;
   private final double exponent1, exponent2, coefficient1, coefficient2;
-  private final double leftTriggerLeftStickMultiplier, rightTriggerLeftStickMultiplier;
-  private final double leftTriggerRightStickMultiplier, rightTriggerRightStickMultiplier;
-  private final SlewRateLimiter leftXRateLimiter, leftYRateLimiter, rightXRateLimiter, rightYRateLimiter;
 
   // these are here so that triggers aren't being created every time a button is
   // read
@@ -83,28 +77,15 @@ public class JoyUtil extends CommandXboxController {
    *                                         is multiplied by if the right
    *                                         trigger is pressed fully
    */
-  public JoyUtil(int port, double deadzone, double rateLimitLeft, double rateLimitRight, double exponent1,
-      double exponent2, double coefficient1, double coefficient2, double leftTriggerLeftStickMultiplier,
-      double rightTriggerLeftStickMultiplier, double leftTriggerRightStickMultiplier,
-      double rightTriggerRightStickMultiplier) {
+  public JoyUtil(int port, double deadzone, double exponent1, double exponent2, double coefficient1, double coefficient2) {
     super(port);
 
     this.deadzone = deadzone;
-
-    this.leftXRateLimiter = new SlewRateLimiter(rateLimitLeft);
-    this.leftYRateLimiter = new SlewRateLimiter(rateLimitLeft);
-    this.rightXRateLimiter = new SlewRateLimiter(rateLimitRight);
-    this.rightYRateLimiter = new SlewRateLimiter(rateLimitRight);
 
     this.exponent1 = exponent1;
     this.exponent2 = exponent2;
     this.coefficient1 = coefficient1;
     this.coefficient2 = coefficient2;
-
-    this.leftTriggerLeftStickMultiplier = leftTriggerLeftStickMultiplier;
-    this.rightTriggerLeftStickMultiplier = rightTriggerLeftStickMultiplier;
-    this.leftTriggerRightStickMultiplier = leftTriggerRightStickMultiplier;
-    this.rightTriggerRightStickMultiplier = rightTriggerRightStickMultiplier;
 
     // even exponents make driving backwards inconvenient, so put
     // a one-time warning in the rio log if there are any
@@ -124,66 +105,27 @@ public class JoyUtil extends CommandXboxController {
    * @param port the port of the controller
    */
   public JoyUtil(int port) {
-    this(port, JoyUtilConstants.kDeadzone, JoyUtilConstants.kRateLimitLeft, JoyUtilConstants.kRateLimitRight,
-        JoyUtilConstants.exponent1, JoyUtilConstants.exponent2, JoyUtilConstants.coeff1, JoyUtilConstants.coeff2,
-        JoyUtilConstants.leftTriggerSpeedMultiplier, JoyUtilConstants.rightTriggerSpeedMultiplier,
-        JoyUtilConstants.leftTriggerSpeedMultiplier, JoyUtilConstants.rightTriggerSpeedMultiplier);
+    this(port, JoyUtilConstants.kDeadzone, JoyUtilConstants.exponent1, JoyUtilConstants.exponent2, JoyUtilConstants.coeff1, JoyUtilConstants.coeff2);
   }
 
   @Override
   public double getLeftX() {
-    double rawOutput = super.getLeftX();
-    double preRateLimiting = composeJoystickFunctions(rawOutput, leftTriggerLeftStickMultiplier,
-        rightTriggerLeftStickMultiplier);
-
-    return leftXRateLimiter.calculate(preRateLimiting);
+    return composeJoystickFunctions(super.getLeftX());
   }
 
   @Override
   public double getRightX() {
-    double rawOutput = super.getRightX();
-    double preRateLimiting = composeJoystickFunctions(rawOutput, leftTriggerRightStickMultiplier,
-        rightTriggerRightStickMultiplier);
-
-    return rightXRateLimiter.calculate(preRateLimiting);
+    return composeJoystickFunctions(super.getRightX());
   }
 
   @Override
   public double getLeftY() {
-    double rawOutput = super.getLeftY();
-    double preRateLimiting = composeJoystickFunctions(rawOutput, leftTriggerLeftStickMultiplier,
-        rightTriggerLeftStickMultiplier);
-
-    return leftYRateLimiter.calculate(preRateLimiting);
+    return composeJoystickFunctions(super.getLeftY());
   }
 
   @Override
   public double getRightY() {
-    double rawOutput = super.getRightY();
-    double preRateLimiting = composeJoystickFunctions(rawOutput, leftTriggerRightStickMultiplier,
-        rightTriggerRightStickMultiplier);
-
-    return rightYRateLimiter.calculate(preRateLimiting);
-  }
-
-  public Translation2d getLeftAxis() {
-    Translation2d rawOutput = new Translation2d(super.getLeftX(), super.getLeftY());
-    Translation2d preRateLimiting = composeJoystickAxisFunctions(rawOutput, leftTriggerLeftStickMultiplier,
-        rightTriggerLeftStickMultiplier);
-
-    return new Translation2d(
-        leftXRateLimiter.calculate(preRateLimiting.getX()),
-        leftYRateLimiter.calculate(preRateLimiting.getY()));
-  }
-
-  public Translation2d getRightAxis() {
-    Translation2d rawOutput = new Translation2d(super.getRightX(), super.getRightY());
-    Translation2d preRateLimiting = composeJoystickAxisFunctions(rawOutput, leftTriggerRightStickMultiplier,
-        rightTriggerRightStickMultiplier);
-
-    return new Translation2d(
-        rightXRateLimiter.calculate(preRateLimiting.getX()),
-        rightYRateLimiter.calculate(preRateLimiting.getY()));
+    return composeJoystickFunctions(super.getRightY());
   }
 
   /**
@@ -359,44 +301,6 @@ public class JoyUtil extends CommandXboxController {
   }
 
   /**
-   * :3 gets the value of the d-pad y-axis (sin of pov angle)
-   *
-   * @return the value
-   */
-  public double getPOVYAxis() {
-    if (getPOVUp()) {
-      return 1;
-    } else if (getPOVDown()) {
-      return -1;
-    } else if (getPOVUpLeft() || getPOVUpRight()) {
-      return sqrt2Over2;
-    } else if (getPOVDownLeft() || getPOVDownRight()) {
-      return -sqrt2Over2;
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * :3 gets the value of the d-pad x-axis (cos of pov angle)
-   *
-   * @return the value
-   */
-  public double getPOVXAxis() {
-    if (getPOVRight()) {
-      return 1;
-    } else if (getPOVLeft()) {
-      return -1;
-    } else if (getPOVUpRight() || getPOVDownRight()) {
-      return sqrt2Over2;
-    } else if (getPOVUpLeft() || getPOVDownLeft()) {
-      return -sqrt2Over2;
-    } else {
-      return 0;
-    }
-  }
-
-  /**
    * :3 curves a given input
    *
    * @param value the value before the curve
@@ -407,24 +311,6 @@ public class JoyUtil extends CommandXboxController {
     double term2 = coefficient2 * Math.pow(value, exponent2);
 
     return term1 + term2;
-  }
-
-  /**
-   * :3 apply the left and right trigger multipliers
-   *
-   * @param value                  the value before having the multipliers applied
-   * @param leftTriggerMultiplier  the multiplier that will be applied if the left
-   *                               trigger is pressed fully
-   * @param rightTriggerMultiplier the multiplier that will be applied if the
-   *                               right trigger is pressed fully
-   * @return the value with trigger multipliers applied
-   */
-  private double applyTriggerMultipliers(double value, double leftTriggerMultiplier, double rightTriggerMultiplier) {
-    // linearly interpolate from 1 to the trigger multiplier by the trigger value
-    double realLeftTriggerMultiplier = MathUtil.interpolate(1, leftTriggerMultiplier, getLeftTriggerAxis());
-    double realRightTriggerMultiplier = MathUtil.interpolate(1, rightTriggerMultiplier, getRightTriggerAxis());
-
-    return value * realLeftTriggerMultiplier * realRightTriggerMultiplier;
   }
 
   /**
@@ -439,32 +325,10 @@ public class JoyUtil extends CommandXboxController {
    *         multipliers applied
    * @apiNote does not do any rate limiting
    */
-  private double composeJoystickFunctions(double value, double leftTriggerMultiplier, double rightTriggerMultiplier) {
+  private double composeJoystickFunctions(double value) {
     double withDeadzone = MathUtil.applyDeadband(value, deadzone);
     double withCurve = applyCurve(withDeadzone);
-    double withMultipliers = applyTriggerMultipliers(withCurve, leftTriggerMultiplier, rightTriggerMultiplier);
 
-    return withMultipliers;
-  }
-
-  /**
-   * :3 applies deadzoning, curve, and trigger multipliers to an axis raw input
-   *
-   * @param value                  the raw input from the joystick
-   * @param leftTriggerMultiplier  the left trigger output multiplier for the axis
-   *                               being calculated
-   * @param rightTriggerMultiplier the right trigger output multiplier for the
-   *                               axis being calculated
-   * @return the raw input after being deadzoned, curved, and having trigger
-   *         multipliers applied
-   * @apiNote does not do any rate limiting
-   */
-  private Translation2d composeJoystickAxisFunctions(Translation2d value, double leftTriggerMultiplier,
-      double rightTriggerMultiplier) {
-    double norm = value.getNorm();
-    double finalNorm = composeJoystickFunctions(norm, leftTriggerMultiplier, rightTriggerMultiplier);
-    Translation2d finalValue = norm > 0 ? value.div(norm).times(finalNorm) : new Translation2d(0, 0);
-
-    return finalValue;
+    return withCurve;
   }
 }

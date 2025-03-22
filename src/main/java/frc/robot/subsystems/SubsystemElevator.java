@@ -9,7 +9,7 @@ import frc.robot.test.Test;
 import frc.robot.test.TestUtil;
 
 import static frc.robot.Constants.Elevator.*;
-import frc.robot.Constants.Positions;
+import frc.robot.Constants.ElevatorPositions;
 
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -50,6 +50,10 @@ public class SubsystemElevator extends SubsystemBaseTestable {
 
   private SendableChooser<Double> powerSetting = new SendableChooser<Double>();
 
+  // we're one week out from competition and DataManager is a
+  // bit of a mess; this is good enough
+  public static double elevatorHeight = 0;
+
   /** Creates a new SubsystemElevator. */
   public SubsystemElevator() {
     motorLeader = new SparkMax(Motors.leaderCanId, MotorType.kBrushless);
@@ -59,22 +63,29 @@ public class SubsystemElevator extends SubsystemBaseTestable {
     SparkBaseConfig leaderConfig = new SparkMaxConfig();
     SparkBaseConfig followerConfig = new SparkMaxConfig();
 
+    leaderConfig.signals.appliedOutputPeriodMs(5);
     leaderConfig.encoder
       .positionConversionFactor(Motors.positionConversionRatio)
       .velocityConversionFactor(Motors.velocityConversionRatio)
+    ;
+
+    // leaderConfig.closedLoop
+    //   .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
+    //   .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+    //   .outputRange(-0.3, 0.3)
+    // ;
+    leaderConfig.closedLoop
+      .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
+      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+      .maxMotion
+        .maxAcceleration(0.1)
+        .maxVelocity(0.1)
     ;
     
     followerConfig.encoder
       .positionConversionFactor(Motors.positionConversionRatio)
       .velocityConversionFactor(Motors.velocityConversionRatio)
     ;
-    
-    leaderConfig.closedLoop
-      .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .outputRange(-0.3, 0.3)
-    ;
-
     followerConfig.follow(motorLeader, true);
 
     // Apply configuration
@@ -94,7 +105,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
       .withPosition(0, 0)
       .withSize(5, 1)
       .withWidget(BuiltInWidgets.kNumberSlider)
-      .withProperties(Map.of("min", Positions.min, "max", Positions.max))
+      .withProperties(Map.of("min", ElevatorPositions.min, "max", ElevatorPositions.max))
     ;
     
     tab.addDouble("ElevatorVelocity", this::getVelocity)
@@ -108,7 +119,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
       .withPosition(0, 1)
       .withSize(5, 1)
       .withWidget(BuiltInWidgets.kNumberSlider)
-      .withProperties(Map.of("min", Positions.min, "max", Positions.max))
+      .withProperties(Map.of("min", ElevatorPositions.min, "max", ElevatorPositions.max))
     ;
 
     tab.addDouble("AverageCurrent", this::getCurrent)
@@ -124,7 +135,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
 
     powerSetting.onChange((speed) -> {
       SparkBaseConfig config = new SparkMaxConfig();
-      config.closedLoop.outputRange(-speed, speed);
+      config.closedLoop.maxMotion.maxVelocity(speed);
       System.out.println("Updated elevator speed to " + speed);
 
       motorLeader.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -140,6 +151,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
   @Override
   public void doPeriodic() {
     // This method will be called once per scheduler run
+    elevatorHeight = getPosition();
   }
 
   public void nudge(double amount) {
@@ -152,9 +164,9 @@ public class SubsystemElevator extends SubsystemBaseTestable {
   }
 
   public void rezero() {
-    encoderLeader.setPosition(Positions.starting);
-    encoderFollower.setPosition(Positions.starting);
-    setPosition(Positions.starting);
+    encoderLeader.setPosition(ElevatorPositions.starting);
+    encoderFollower.setPosition(ElevatorPositions.starting);
+    setPosition(ElevatorPositions.starting);
   }
 
   public double getCurrent() {
@@ -164,7 +176,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
   // ### Public API used by commands ###
 
   public void setPosition(double position) {
-    position = clamp(Positions.min, Positions.max, position);
+    position = clamp(ElevatorPositions.min, ElevatorPositions.max, position);
     currentReference = position;
     //System.out.println("positioning stuff ########");
     //System.out.println(position);
@@ -279,18 +291,18 @@ public class SubsystemElevator extends SubsystemBaseTestable {
   // Position test
 
   private void positionTest1() {
-    setPosition(Positions.min);
+    setPosition(ElevatorPositions.min);
   }
   private void positionTest2() {
-    TestUtil.assertEquals(getPosition(), Positions.min, "Did not reach min position.", 0.05);
-    setPosition(Positions.max);
+    TestUtil.assertEquals(getPosition(), ElevatorPositions.min, "Did not reach min position.", 0.05);
+    setPosition(ElevatorPositions.max);
   }
   private void positionTest3() {
-    TestUtil.assertEquals(getPosition(), Positions.max, "Did not reach max position", 0.05);
-    setPosition((Positions.max + Positions.min) / 2.0);
+    TestUtil.assertEquals(getPosition(), ElevatorPositions.max, "Did not reach max position", 0.05);
+    setPosition((ElevatorPositions.max + ElevatorPositions.min) / 2.0);
   }
   private void positionTest4() {
-    TestUtil.assertEquals(getPosition(), (Positions.max + Positions.min) / 2.0, "Did not reach mid position", 0.05);
+    TestUtil.assertEquals(getPosition(), (ElevatorPositions.max + ElevatorPositions.min) / 2.0, "Did not reach mid position", 0.05);
   }
 
   private Test positionTest =

@@ -7,7 +7,7 @@ package frc.robot.commands.elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SubsystemElevator;
 import static frc.robot.Constants.Elevator.*;
-import frc.robot.Constants.Positions;
+import frc.robot.Constants.ElevatorPositions;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElevatorMoveToPositionCommand extends Command {
@@ -59,12 +59,12 @@ public class ElevatorMoveToPositionCommand extends Command {
   }
 
   public enum Position {
-    Starting(Positions.starting),
-    Loading(Positions.loading),
-    L1(Positions.L1),
-    L2(Positions.L2),
-    L3(Positions.L3),
-    L4(Positions.L4);
+    Starting(ElevatorPositions.starting),
+    Loading(ElevatorPositions.loading),
+    L1(ElevatorPositions.L1),
+    L2(ElevatorPositions.L2),
+    L3(ElevatorPositions.L3),
+    L4(ElevatorPositions.L4);
 
     public final double position;
 
