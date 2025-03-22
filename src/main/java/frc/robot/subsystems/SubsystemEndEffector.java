@@ -21,11 +21,11 @@ public class SubsystemEndEffector extends SubsystemBase {
   public static class EndEffectorConstants {
     public static final int sparkMaxId = 13;
 
-    public static final int stallCurrentLimit = 40;
-    public static final int freeCurrentLimit = 60;
+    public static final int stallCurrentLimit = 60;
+    public static final int freeCurrentLimit = 30;
 
-    public static final double holdingCoralCurrentMin = 38;
-    public static final double holdingCoralMinTime = 0.25;
+    public static final double holdingCoralCurrentMin = 45;
+    public static final double holdingCoralMinTime = 0.35;
     public static final int outputCurrentPeriod = 10;
 
     public static final double intakePower = 0.15;

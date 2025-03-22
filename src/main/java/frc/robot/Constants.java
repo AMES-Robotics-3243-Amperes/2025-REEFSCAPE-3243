@@ -195,10 +195,10 @@ public final class Constants {
     public static final double L1 = 0.4;// Units.inchesToMeters(18 + angledOffset23);
     public static final double L2 = 0.48;// Units.inchesToMeters(31.2 + angledOffset23);
     public static final double L3 = 0.93;// Units.inchesToMeters(47.025 + angledOffset23);
-    public static final double L4 = 1.605;// Units.inchesToMeters(72 + angledOffset4);
+    public static final double L4 = 1.57;// Units.inchesToMeters(72 + angledOffset4);
     public static final double A1 = 0.786; // First Algae
     public static final double A2 = 1.142; // Second Algae
-    public static final double max = 1.61;// Units.inchesToMeters(85);
+    public static final double max = 1.60;// Units.inchesToMeters(85);
   }
 
   public static final class FieldConstants {

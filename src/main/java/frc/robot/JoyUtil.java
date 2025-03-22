@@ -326,8 +326,7 @@ public class JoyUtil extends CommandXboxController {
    * @apiNote does not do any rate limiting
    */
   private double composeJoystickFunctions(double value) {
-    double withDeadzone = MathUtil.applyDeadband(value, deadzone);
-    double withCurve = applyCurve(withDeadzone);
+    double withCurve = applyCurve(value);
 
     return withCurve;
   }
