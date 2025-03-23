@@ -21,15 +21,15 @@ public class SubsystemEndEffector extends SubsystemBase {
   public static class EndEffectorConstants {
     public static final int sparkMaxId = 13;
 
-    public static final int stallCurrentLimit = 60;
+    public static final int stallCurrentLimit = 80;
     public static final int freeCurrentLimit = 30;
 
-    public static final double holdingCoralCurrentMin = 45;
-    public static final double holdingCoralMinTime = 0.35;
+    public static final double holdingCoralCurrentMin = 50;
+    public static final double holdingCoralMinTime = 0.081;
     public static final int outputCurrentPeriod = 10;
 
     public static final double intakePower = 0.15;
-    public static final double outtakePower = 0.65;
+    public static final double outtakePower = 0.27;
 
     public static final double outtakeTimeSeconds = 3;
   }
@@ -88,6 +88,11 @@ public class SubsystemEndEffector extends SubsystemBase {
   public Command outtakeCommand() {
     return this.run(() -> this.setPower(EndEffectorConstants.outtakePower))
         .andThen(new WaitCommand(EndEffectorConstants.outtakeTimeSeconds))
+        .finallyDo(this::stop);
+  }
+
+  public Command continuousDriveCommand(double power) {
+    return this.run(() -> this.setPower(power))
         .finallyDo(this::stop);
   }
 }

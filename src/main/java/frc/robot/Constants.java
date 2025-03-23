@@ -49,9 +49,9 @@ public final class Constants {
       public static final double maxSpeedAtMaxElevatorExtension = 0.2;
 
       public static final double accelerationLimitSafetyFactor = 1.5;
-      public static final double baseAcceleration = 4; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
-      public static final double baseCenterOfMass = 1;
-      public static final double percentOfWeightInElevator = 0.8;
+      public static final double baseCenterOfMass = Units.inchesToMeters(12 - 1);
+      public static final double baseAcceleration = Units.inchesToMeters(17) * 9.8 / baseCenterOfMass; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
+      public static final double percentOfWeightInElevator = Units.inchesToMeters(21 - 12);
 
       public static final double rotationSpeed = 1.2 * Math.PI;
 
@@ -189,7 +189,7 @@ public final class Constants {
     public static final double starting = min;
     public static final double store = 0.03;
     public static final double loading = 0.6;// Units.inchesToMeters(37 - angledOffset23);
-    public static final double L1 = 0.4;// Units.inchesToMeters(18 + angledOffset23);
+    public static final double L1 = 0.225;// Units.inchesToMeters(18 + angledOffset23);
     public static final double L2 = 0.525;// Units.inchesToMeters(31.2 + angledOffset23);
     public static final double L3 = 0.93;// Units.inchesToMeters(47.025 + angledOffset23);
     public static final double L4 = 1.57;// Units.inchesToMeters(72 + angledOffset4);

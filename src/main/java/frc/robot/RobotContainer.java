@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.automatics.L1AutoCommand;
+import frc.robot.commands.automatics.L1DoubleHitScore;
 import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
@@ -21,6 +22,7 @@ import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
 import frc.robot.commands.leds.CommandLedPattern;
 import frc.robot.commands.leds.CommandLedPatternCycle;
+import frc.robot.commands.leds.CommandLedsFromElevatorPosition;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.SubsystemLeds;
@@ -91,7 +93,7 @@ public class RobotContainer {
    * Used to set default commands for subsystems.
    */
   private void setDefaultCommands() {
-    subsystemLeds.setDefaultCommand(new CommandLedPattern(subsystemLeds, SubsystemLeds.Mode.OrangeFire));
+    subsystemLeds.setDefaultCommand(new CommandLedsFromElevatorPosition(subsystemLeds, DataManager.instance()));
     subsystemSwerveDrivetrain.setDefaultCommand(commandSwerveTeleopDrive);
   }
 
@@ -134,6 +136,7 @@ public class RobotContainer {
     leftYDown.whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.downNudgeVelocity));
 
     mainTab.add("Zero Elevator", new ElevatorZeroCommand(subsystemElevator)).withWidget(BuiltInWidgets.kCommand);
+    mainTab.add("Score L1", new L1DoubleHitScore(subsystemElevator, endEffector, DataManager.instance())).withWidget(BuiltInWidgets.kCommand);
 
     primaryController.b().onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
     primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
