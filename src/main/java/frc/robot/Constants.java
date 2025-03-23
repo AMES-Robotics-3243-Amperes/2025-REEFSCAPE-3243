@@ -49,7 +49,7 @@ public final class Constants {
       public static final double maxSpeedAtMaxElevatorExtension = 0.2;
 
       public static final double accelerationLimitSafetyFactor = 1.5;
-      public static final double baseAcceleration = 3; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
+      public static final double baseAcceleration = 4; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
       public static final double baseCenterOfMass = 1;
       public static final double percentOfWeightInElevator = 0.8;
 

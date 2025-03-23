@@ -19,6 +19,7 @@ import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
+import frc.robot.commands.leds.CommandLedPattern;
 import frc.robot.commands.leds.CommandLedPatternCycle;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
@@ -90,7 +91,7 @@ public class RobotContainer {
    * Used to set default commands for subsystems.
    */
   private void setDefaultCommands() {
-    subsystemLeds.setDefaultCommand(commandLedPatternCycle);
+    subsystemLeds.setDefaultCommand(new CommandLedPattern(subsystemLeds, SubsystemLeds.Mode.OrangeFire));
     subsystemSwerveDrivetrain.setDefaultCommand(commandSwerveTeleopDrive);
   }
 

@@ -9,36 +9,32 @@ import frc.robot.subsystems.SubsystemLeds;
 import frc.robot.subsystems.SubsystemLeds.Mode;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class CommandLedPatternCycle extends Command {
+public class CommandLedPattern extends Command {
   private SubsystemLeds leds;
-  private int counter = 1000;
-  private SubsystemLeds.Mode mode = Mode.Error;
+  private SubsystemLeds.Mode mode;
   /** Creates a new CommandLedPatternCycle. */
-  public CommandLedPatternCycle(SubsystemLeds leds) {
+  public CommandLedPattern(SubsystemLeds leds, SubsystemLeds.Mode pattern) {
     this.leds = leds;
+    this.mode = pattern;
     addRequirements(leds);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    leds.setState(mode);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    counter++;
-    //SmartDashboard.putNumber("LED Counter", counter);
-    if (counter > 50 * 8) {
-      counter = 0;
-      //System.out.println("\n\nLeds now displaying: " + mode + "\n\n");
-      leds.setState(mode);
-      mode = Mode.values()[(mode.ordinal() + 1) % Mode.values().length];
-    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    leds.setState(Mode.Error);
+  }
 
   // Returns true when the command should end.
   @Override

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Random;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -83,23 +85,32 @@ public class SubsystemLeds extends SubsystemBase {
   }
 
   private Color8Bit getFireColorFromTimer(int timer) {
-    final int[] cycleCounts = new int[]{3, 5, 7, 11, 13, 17};
-    final double[] amplitudes = new double[]{-0.369, -0.438, 0.177, 0.329, -0.427, -0.472};
-    final int repeatTime = 50 * 5;
-    final double mr = 0.1086;
-    final double br = 239.6;
-    final double mg = 0.9133;
-    final double bg = 112.67;
+    final int[] cycleCounts = new int[]{3, 5, 7, 11, 13, 17, 101};
+    final double[] amplitudes = new double[]{-0.33990683, 0.48830171, 0.26464893, -0.3893588, -0.45606373, -0.49596125, 0.4};
+    final int repeatTime = 50 * 10;
+    final double mr = 0.1086 * 2.5;
+    final double br = 239.6 / 2;
+    final double mg = 0.9133 - 0.1;
+    final double bg = 112.67 - 50;
 
-    double t = 120;
+    double t = 35;
 
     for (int i = 0; i < cycleCounts.length; i++) {
-      t += Math.sin(2 * Math.PI * cycleCounts[i] * timer / ((double) repeatTime)) * amplitudes[i];
+      t += Math.sin(2 * Math.PI * cycleCounts[i] * timer * (1.0 / (double) repeatTime)) * amplitudes[i] * 100;
     }
 
     double r = br + t * mr;
     double g = bg + t * mg;
     double b = t;
+
+    r *= 1.0;
+    g *= 0.12;
+    b *= 0.02;
+
+    Random rand = new Random();
+    r += rand.doubles().findFirst().getAsDouble() * 8 - 4;
+    // g += rand.doubles().findFirst().getAsDouble() * 5 - 2.5;
+    // b += rand.doubles().findFirst().getAsDouble() * 5 - 2.5;
 
     return new Color8Bit((int) r, (int) g, (int) b);
   }
@@ -110,7 +121,7 @@ public class SubsystemLeds extends SubsystemBase {
   private int timer = 0;
   /** Creates a new SubsystemLeds. */
   public SubsystemLeds() {
-    led = new AddressableLED(4); // TODO move things to constants
+    led = new AddressableLED(0); // TODO move things to constants
     ledBuffer = new AddressableLEDBuffer(33);
 
     loadBufferBlank(0);
