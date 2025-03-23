@@ -26,7 +26,8 @@ public class SubsystemLeds extends SubsystemBase {
     L2Color,
     L3Color,
     L4Color,
-    ElevatorMovingColor
+    ElevatorMovingColor,
+    OrangeFire
   }
 
   private void loadBufferSolidColorRGB(int r, int g, int b) {
@@ -75,6 +76,34 @@ public class SubsystemLeds extends SubsystemBase {
     }
   }
 
+  private void loadBufferFire(int timer) {
+    for (int i = 0; i < ledBuffer.getLength(); i++) {
+      ledBuffer.setLED(i, getFireColorFromTimer(timer - i));
+    }
+  }
+
+  private Color8Bit getFireColorFromTimer(int timer) {
+    final int[] cycleCounts = new int[]{3, 5, 7, 11, 13, 17};
+    final double[] amplitudes = new double[]{-0.369, -0.438, 0.177, 0.329, -0.427, -0.472};
+    final int repeatTime = 50 * 5;
+    final double mr = 0.1086;
+    final double br = 239.6;
+    final double mg = 0.9133;
+    final double bg = 112.67;
+
+    double t = 120;
+
+    for (int i = 0; i < cycleCounts.length; i++) {
+      t += Math.sin(2 * Math.PI * cycleCounts[i] * timer / ((double) repeatTime)) * amplitudes[i];
+    }
+
+    double r = br + t * mr;
+    double g = bg + t * mg;
+    double b = t;
+
+    return new Color8Bit((int) r, (int) g, (int) b);
+  }
+
   private AddressableLED led;
   private AddressableLEDBuffer ledBuffer;
   private Mode state = Mode.Error;
@@ -93,7 +122,7 @@ public class SubsystemLeds extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (timer % 10 == 0) {
+    if (timer % 2 == 0) {
       switch (state) {
         case Error:
           loadBufferError(timer);
@@ -124,6 +153,9 @@ public class SubsystemLeds extends SubsystemBase {
           break;
         case ElevatorMovingColor:
           loadBufferSolidColorHSV(0, 128, 120);
+          break;
+        case OrangeFire:
+          loadBufferFire(timer);
       }
 
       led.setData(ledBuffer);
