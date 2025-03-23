@@ -20,7 +20,6 @@ import frc.robot.Constants.ElevatorPositions;
 import frc.robot.Constants.SwerveConstants.ChassisKinematics;
 import frc.robot.Constants.SwerveConstants.ControlConstants;
 import frc.robot.DataManager;
-import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemSwerveDrivetrain;
 
 public class CommandSwerveTeleopDrive extends Command {
@@ -75,7 +74,7 @@ public class CommandSwerveTeleopDrive extends Command {
     double desiredSpeed = desiredVelocity.getNorm();
     double maxSpeed = MathUtil.interpolate(ControlConstants.maxSpeed,
         ControlConstants.maxSpeedAtMaxElevatorExtension,
-        SubsystemElevator.elevatorHeight / ElevatorPositions.max);
+        DataManager.instance().elevatorPosition.get().exactPos / ElevatorPositions.max);
     if (desiredSpeed > maxSpeed) {
       desiredVelocity = desiredVelocity.div(desiredSpeed).times(maxSpeed);
     }
@@ -89,9 +88,10 @@ public class CommandSwerveTeleopDrive extends Command {
 
     Translation2d acceleration = desiredVelocity.minus(velocity);
     double desiredAccelerationNorm = acceleration.getNorm();
-    double maxAcceleration = accelerationTimer.get() * MathUtil.interpolate(ControlConstants.maxAcceleration,
-        ControlConstants.maxAccelerationAtMaxElevatorExtension,
-        SubsystemElevator.elevatorHeight / ElevatorPositions.max);
+    double maxAcceleration = (accelerationTimer.get() * ControlConstants.baseAcceleration
+        * ControlConstants.baseCenterOfMass)
+        / (ControlConstants.baseCenterOfMass
+            + ControlConstants.percentOfWeightInElevator * DataManager.instance().elevatorPosition.get().exactPos);
     if (desiredAccelerationNorm > maxAcceleration) {
       acceleration = acceleration.div(desiredAccelerationNorm).times(maxAcceleration);
     }
