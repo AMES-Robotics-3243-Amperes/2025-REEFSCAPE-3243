@@ -10,18 +10,15 @@ import frc.robot.subsystems.swerve.control.DriveWithSpeeds;
 public class TaxiCommand extends Command {
   Timer timer = new Timer();
   SubsystemSwerveDrivetrain drivetrain;
+  double time;
 
   /** Creates a new CommandSwerveTaxi. */
-  public TaxiCommand(SubsystemSwerveDrivetrain drivetrain) {
+  public TaxiCommand(SubsystemSwerveDrivetrain drivetrain, double time) {
     this.drivetrain = drivetrain;
+    this.time = time;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
-  }
-
-  public static Command L1AutoCommand(SubsystemSwerveDrivetrain drivetrain, SubsystemEndEffector endEffector) {
-    TaxiCommand taxiCommand = new TaxiCommand(drivetrain);
-    return taxiCommand.andThen(endEffector.continuousOuttakeCommand());
   }
 
   // Called when the command is initially scheduled.
@@ -34,7 +31,7 @@ public class TaxiCommand extends Command {
   @Override
   public void execute() {
     drivetrain.setControlRequest(
-        DriveWithSpeeds.newRequest(1, 0, 0).fieldRelative(false).limitSpeed(false).limitAccelaration(false));
+        DriveWithSpeeds.newRequest(0.25, 0, 0).fieldRelative(false).limitSpeed(false).limitAccelaration(false));
   }
 
   // Called once the command ends or is interrupted.
@@ -46,6 +43,6 @@ public class TaxiCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(3);
+    return timer.hasElapsed(time);
   }
 }

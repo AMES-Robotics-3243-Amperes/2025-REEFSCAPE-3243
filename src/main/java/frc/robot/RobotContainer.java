@@ -9,10 +9,13 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.automatics.L1AutoCommand;
+import frc.robot.commands.automatics.L2AutoCommand;
+import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
@@ -92,6 +95,10 @@ public class RobotContainer {
   }
 
   private void setAutoCommands() {
+    autoSelector.addDefault(new InstantCommand(), "None");
+    autoSelector.add(new TaxiCommand(subsystemSwerveDrivetrain, 0.5), "Small Taxi");
+    autoSelector.add(new L1AutoCommand(subsystemSwerveDrivetrain, endEffector));
+    autoSelector.add(new L2AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector));
   }
 
   /**
@@ -141,7 +148,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new L1AutoCommand(subsystemSwerveDrivetrain, endEffector);
+    return autoSelector.get();
     // return ScoreIntakeAutoCommandBuilder.buildAuto(
     // FieldConstants.AutonomousPaths.testingPositions,
     // subsystemClaw, subsystemElevator,

@@ -77,7 +77,7 @@ public abstract class SwerveControlRequest {
 
       // according to hale, this is the right way to compute this
       double maxAcceleration = secondsSinceLastControl *
-          (ControlConstants.baseAcceleration * ControlConstants.baseCenterOfMass)
+          (ControlConstants.baseAcceleration * ControlConstants.baseCenterOfMass / ControlConstants.accelerationLimitSafetyFactor)
           / (ControlConstants.baseCenterOfMass
               + ControlConstants.percentOfWeightInElevator * DataManager.instance().elevatorPosition.get().exactPos);
       double accelerationNorm = acceleration.getNorm();
@@ -87,7 +87,7 @@ public abstract class SwerveControlRequest {
       }
 
       fieldOrientedVelocity = currentFieldOrientedVelocity.plus(acceleration);
-      robotRelativeVelocity = currentFieldOrientedVelocity.rotateBy(robotRotation.times(-1));
+      robotRelativeVelocity = fieldOrientedVelocity.rotateBy(robotRotation.times(-1));
     }
 
     return new ControlOutput(new ChassisSpeeds(robotRelativeVelocity.getX(), robotRelativeVelocity.getY(),

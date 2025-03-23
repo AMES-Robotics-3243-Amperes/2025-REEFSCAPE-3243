@@ -48,9 +48,10 @@ public final class Constants {
       public static final double maxSpeed = 5;
       public static final double maxSpeedAtMaxElevatorExtension = 0.2;
 
-      public static final double baseAcceleration = 8; // hale, if you're reading this, this is alpha / beta
+      public static final double accelerationLimitSafetyFactor = 1.5;
+      public static final double baseAcceleration = 3; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
       public static final double baseCenterOfMass = 1;
-      public static final double percentOfWeightInElevator = 0.5;
+      public static final double percentOfWeightInElevator = 0.8;
 
       public static final double rotationSpeed = 1.2 * Math.PI;
 
@@ -158,8 +159,8 @@ public final class Constants {
     }
 
     public static class Control {
-      public static final double upNudgeVelocity = 1.0;
-      public static final double downNudgeVelocity = -1.0;
+      public static final double upNudgeVelocity = 0.25;
+      public static final double downNudgeVelocity = -0.25;
     }
 
     public static class SpeedSettings {
@@ -189,7 +190,7 @@ public final class Constants {
     public static final double store = 0.03;
     public static final double loading = 0.6;// Units.inchesToMeters(37 - angledOffset23);
     public static final double L1 = 0.4;// Units.inchesToMeters(18 + angledOffset23);
-    public static final double L2 = 0.48;// Units.inchesToMeters(31.2 + angledOffset23);
+    public static final double L2 = 0.525;// Units.inchesToMeters(31.2 + angledOffset23);
     public static final double L3 = 0.93;// Units.inchesToMeters(47.025 + angledOffset23);
     public static final double L4 = 1.57;// Units.inchesToMeters(72 + angledOffset4);
     public static final double A1 = 0.786; // First Algae

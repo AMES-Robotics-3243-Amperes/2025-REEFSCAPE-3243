@@ -6,6 +6,6 @@ import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 
 public class L1AutoCommand extends SequentialCommandGroup {
   public L1AutoCommand(SubsystemSwerveDrivetrain drivetrain, SubsystemEndEffector endEffector) {
-    super(new TaxiCommand(drivetrain), endEffector.continuousOuttakeCommand());
+    super(new TaxiCommand(drivetrain, 3.0), endEffector.continuousOuttakeCommand());
   }
 }

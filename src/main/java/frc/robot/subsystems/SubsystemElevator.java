@@ -65,18 +65,18 @@ public class SubsystemElevator extends SubsystemBaseTestable {
       .velocityConversionFactor(Motors.velocityConversionRatio)
     ;
 
-    // leaderConfig.closedLoop
-    //   .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
-    //   .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-    //   .outputRange(-0.3, 0.3)
-    // ;
     leaderConfig.closedLoop
       .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
       .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .maxMotion
-        .maxAcceleration(0.1)
-        .maxVelocity(0.1)
+      .outputRange(-0.1, 0.1)
     ;
+    // leaderConfig.closedLoop
+    //   .pidf(Motors.P, Motors.I, Motors.D, Motors.FF)
+    //   .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+    //   .maxMotion
+    //     .maxAcceleration(0.1)
+    //     .maxVelocity(0.1)
+    // ;
     
     followerConfig.encoder
       .positionConversionFactor(Motors.positionConversionRatio)
@@ -131,7 +131,7 @@ public class SubsystemElevator extends SubsystemBaseTestable {
 
     powerSetting.onChange((speed) -> {
       SparkBaseConfig config = new SparkMaxConfig();
-      config.closedLoop.maxMotion.maxVelocity(speed);
+      config.closedLoop.outputRange(-speed, speed);
       System.out.println("Updated elevator speed to " + speed);
 
       motorLeader.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

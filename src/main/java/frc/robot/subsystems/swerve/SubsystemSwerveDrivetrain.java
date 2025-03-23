@@ -95,13 +95,17 @@ public class SubsystemSwerveDrivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     if (request.isPresent()) {
+      accelerationTimer.stop();
+
       ControlOutput output = request.get().getOutput(currentVelocity, accelerationTimer.get());
       setModuleStates(output.getStates());
 
       ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(output.getRobotRelativeSpeeds(),
           DataManager.instance().robotPosition.get().getRotation());
       currentVelocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
-      accelerationTimer.restart();
+
+      accelerationTimer.reset();
+      accelerationTimer.start();
     }
 
     m_frontLeft.update();

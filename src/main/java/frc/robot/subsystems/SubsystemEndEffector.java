@@ -40,11 +40,18 @@ public class SubsystemEndEffector extends SubsystemBase {
   /** Creates a new EndEffector. */
   public SubsystemEndEffector() {
     SparkMaxConfig config = new SparkMaxConfig();
-    config.smartCurrentLimit(EndEffectorConstants.stallCurrentLimit, EndEffectorConstants.freeCurrentLimit);
-    config.signals.outputCurrentPeriodMs(EndEffectorConstants.outputCurrentPeriod);
-    config.idleMode(IdleMode.kBrake);
-    config.inverted(true);
+    
+    config
+      .smartCurrentLimit(EndEffectorConstants.stallCurrentLimit, EndEffectorConstants.freeCurrentLimit)
+      .idleMode(IdleMode.kBrake)
+      .inverted(true)
+      .idleMode(IdleMode.kBrake)
+    ;
 
+    config.signals
+      .outputCurrentPeriodMs(EndEffectorConstants.outputCurrentPeriod)
+    ;
+    
     sparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
