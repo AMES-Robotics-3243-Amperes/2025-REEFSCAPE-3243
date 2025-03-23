@@ -50,10 +50,6 @@ public class SubsystemElevator extends SubsystemBaseTestable {
 
   private SendableChooser<Double> powerSetting = new SendableChooser<Double>();
 
-  // we're one week out from competition and DataManager is a
-  // bit of a mess; this is good enough
-  public static double elevatorHeight = 0;
-
   /** Creates a new SubsystemElevator. */
   public SubsystemElevator() {
     motorLeader = new SparkMax(Motors.leaderCanId, MotorType.kBrushless);
@@ -151,7 +147,6 @@ public class SubsystemElevator extends SubsystemBaseTestable {
   @Override
   public void doPeriodic() {
     // This method will be called once per scheduler run
-    elevatorHeight = getPosition();
   }
 
   public void nudge(double amount) {

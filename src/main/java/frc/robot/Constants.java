@@ -16,10 +16,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
@@ -53,8 +50,9 @@ public final class Constants {
       public static final double maxSpeed = 5;
       public static final double maxSpeedAtMaxElevatorExtension = 0.2;
 
-      public static final double maxAcceleration = 12;
-      public static final double maxAccelerationAtMaxElevatorExtension = 0.4;
+      public static final double baseAcceleration = 8; // hale, if you're reading this, this is alpha / beta
+      public static final double baseCenterOfMass = 1;
+      public static final double percentOfWeightInElevator = 0.5;
 
       public static final double rotationSpeed = 1.2 * Math.PI;
 
