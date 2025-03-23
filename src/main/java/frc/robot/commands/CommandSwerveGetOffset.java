@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.subsystems.SubsystemSwerveDrivetrain;
+import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 
 public class CommandSwerveGetOffset extends InstantCommand {
   SubsystemSwerveDrivetrain drivetrain;

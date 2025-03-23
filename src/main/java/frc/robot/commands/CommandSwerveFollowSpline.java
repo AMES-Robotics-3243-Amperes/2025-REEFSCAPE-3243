@@ -5,13 +5,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SplineConstants.FollowConstants;
-import frc.robot.Constants.SwerveConstants.ChassisKinematics;
 import frc.robot.splines.Path;
-import frc.robot.subsystems.SubsystemSwerveDrivetrain;
+import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
+import frc.robot.subsystems.swerve.control.DriveWithSpeeds;
 
 public class CommandSwerveFollowSpline extends Command {
   private SubsystemSwerveDrivetrain drivetrain;
@@ -68,10 +66,9 @@ public class CommandSwerveFollowSpline extends Command {
         rotationSpeed += FollowConstants.staticThetaVelocity * Math.signum(rotationSpeed);
     }
 
-    Translation2d speeds = path.getDesiredVelocity().plus(pidAdjustment).rotateBy(robotRotation.times(-1));
-    ChassisSpeeds chassisSpeeds = new ChassisSpeeds(speeds.getX(), speeds.getY(), rotationSpeed);
-    SwerveModuleState[] moduleStates = ChassisKinematics.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-    drivetrain.setModuleStates(moduleStates);
+    drivetrain
+        .setControlRequest(DriveWithSpeeds.newRequest(path.getDesiredVelocity().plus(pidAdjustment), rotationSpeed)
+            .fieldRelative(true).limitAccelaration(false).limitSpeed(false));
 
     path.advance();
   }
