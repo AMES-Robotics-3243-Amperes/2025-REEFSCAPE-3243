@@ -15,8 +15,8 @@ import frc.robot.Constants.SplineConstants.FollowConstants;
 import frc.robot.commands.CommandSwerveFollowSpline;
 import frc.robot.splines.NumericalMethods.RealFunction;
 import frc.robot.splines.tasks.Task;
+import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.splines.interpolation.SplineInterpolator;
-import frc.robot.subsystems.SubsystemSwerveDrivetrain;
 
 /**
  * Used to build a {@link Path}. See {@link #newFactory

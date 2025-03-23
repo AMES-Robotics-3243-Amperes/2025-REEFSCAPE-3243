@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.modules;
+package frc.robot.subsystems.swerve.modules;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -25,7 +25,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.MotorLog;
 import frc.robot.Constants.SwerveConstants.ModuleConstants;
 import frc.robot.Constants.SwerveConstants.ModuleConstants.PIDF;
-import frc.robot.subsystems.SubsystemSwerveDrivetrain;
+import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 
 /**
  * Represents a single module of an {@link SubsystemSwerveDrivetrain}
