@@ -4,10 +4,9 @@
 
 package frc.robot;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonCamera;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -16,12 +15,17 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.splines.interpolation.LinearInterpolator;
 import frc.robot.splines.interpolation.SplineInterpolator;
+import frc.robot.utility.PhotonCameraGroup;
+import frc.robot.utility.PhotonCameraGroup.PhotonCameraSetup;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -37,7 +41,6 @@ import frc.robot.splines.interpolation.SplineInterpolator;
  */
 public final class Constants {
   public static final class JoyUtilConstants {
-    public static final double kDeadzone = 0.05;
     public static final double exponent1 = 3;
     public static final double exponent2 = 1;
     public static final double coeff1 = 0.4;
@@ -255,31 +258,23 @@ public final class Constants {
 
   public static final class PhotonvisionConstants {
 
-    public static final List<PhotonUnit> photonUnits = Arrays.asList();
-        // new PhotonUnit("FrontCenterCamera",
-        //     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        //     new Transform3d(new Pose3d(),
-        //         new Pose3d(new Translation3d(Units.inchesToMeters(6.7),
-        //             Units.inchesToMeters(11), Units.inchesToMeters(7.1875)),
-        //             new Rotation3d(0, 0, Units.degreesToRadians(0)))),
-        //     FieldConstants.fieldLayout));
-    // new PhotonUnit("BackRightCamera",
-    // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-    // new Transform3d(new Pose3d(),
-    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-    // Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
-    // new Rotation3d(0, 0, Units.degreesToRadians(215)))),
-    // FieldConstants.fieldLayout),
-    // new PhotonUnit("BackLeftCamera",
-    // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-    // new Transform3d(new Pose3d(),
-    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-    // Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
-    // new Rotation3d(0, 0, Units.degreesToRadians(145)))),
-    // FieldConstants.fieldLayout));
+    public static final PhotonCameraGroup cameraGroup = new PhotonCameraGroup(
+        new PhotonCameraSetup(new PhotonCamera("FrontCenterCamera"), new Transform3d(new Pose3d(),
+            new Pose3d(new Translation3d(Units.inchesToMeters(6.7),
+                Units.inchesToMeters(11), Units.inchesToMeters(7.1875)),
+                new Rotation3d(0, 0, Units.degreesToRadians(0))))),
+        new PhotonCameraSetup(new PhotonCamera("BackRightCamera"), new Transform3d(new Pose3d(),
+            new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+                Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
+                new Rotation3d(0, 0, Units.degreesToRadians(215))))),
+        new PhotonCameraSetup(new PhotonCamera("BackLeftCamera"), new Transform3d(new Pose3d(),
+            new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+                Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
+                new Rotation3d(0, 0, Units.degreesToRadians(145))))));
+
+    public static final double photonUnitAmbiguityCutoff = 0.1;
 
     public static final double poseEstimatorAmbiguityScaleFactor = 2;
-    public static final double photonUnitAmbiguityCutoff = 0.1;
     public static final double photonUnitVelocityCutoff = 1.0;
     public static final double photonUnitMinDistance = 0.4;
   }

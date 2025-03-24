@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,7 +21,6 @@ import frc.robot.Constants.JoyUtilConstants;
  * </p>
  */
 public class JoyUtil extends CommandXboxController {
-  private final double deadzone;
   private final double exponent1, exponent2, coefficient1, coefficient2;
 
   // these are here so that triggers aren't being created every time a button is
@@ -77,10 +75,8 @@ public class JoyUtil extends CommandXboxController {
    *                                         is multiplied by if the right
    *                                         trigger is pressed fully
    */
-  public JoyUtil(int port, double deadzone, double exponent1, double exponent2, double coefficient1, double coefficient2) {
+  public JoyUtil(int port, double exponent1, double exponent2, double coefficient1, double coefficient2) {
     super(port);
-
-    this.deadzone = deadzone;
 
     this.exponent1 = exponent1;
     this.exponent2 = exponent2;
@@ -105,7 +101,7 @@ public class JoyUtil extends CommandXboxController {
    * @param port the port of the controller
    */
   public JoyUtil(int port) {
-    this(port, JoyUtilConstants.kDeadzone, JoyUtilConstants.exponent1, JoyUtilConstants.exponent2, JoyUtilConstants.coeff1, JoyUtilConstants.coeff2);
+    this(port, JoyUtilConstants.exponent1, JoyUtilConstants.exponent2, JoyUtilConstants.coeff1, JoyUtilConstants.coeff2);
   }
 
   @Override

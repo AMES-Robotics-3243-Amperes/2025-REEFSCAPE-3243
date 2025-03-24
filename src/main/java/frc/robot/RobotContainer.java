@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -12,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
+import frc.robot.commands.GetCameraOffset;
 import frc.robot.commands.automatics.L1AutoCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
@@ -126,6 +133,11 @@ public class RobotContainer {
     leftYDown.whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.downNudgeVelocity));
 
     mainTab.add("Zero Elevator", new ElevatorZeroCommand(subsystemElevator)).withWidget(BuiltInWidgets.kCommand);
+    mainTab
+        .add("Get Robot to Camera",
+            new GetCameraOffset(new PhotonCamera("FrontCenterCamera"),
+                new Transform3d(new Pose3d(), new Pose3d(1, 0, 0, new Rotation3d(Rotation2d.fromDegrees(180))))))
+        .withWidget(BuiltInWidgets.kCommand);
 
     primaryController.b().onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
     primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
