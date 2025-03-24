@@ -15,6 +15,7 @@ import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.automatics.L1AutoCommand;
 import frc.robot.commands.automatics.L2AutoCommand;
+import frc.robot.commands.automatics.L4AutoCommand;
 import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
@@ -99,6 +100,7 @@ public class RobotContainer {
     autoSelector.add(new TaxiCommand(subsystemSwerveDrivetrain, 0.5), "Small Taxi");
     autoSelector.add(new L1AutoCommand(subsystemSwerveDrivetrain, endEffector));
     autoSelector.add(new L2AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector));
+    autoSelector.add(new L4AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector));
   }
 
   /**
