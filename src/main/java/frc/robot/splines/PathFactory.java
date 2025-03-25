@@ -174,4 +174,9 @@ public class PathFactory {
       PIDController yController, ProfiledPIDController thetaController) {
     return new CommandSwerveFollowSpline(subsystem, this.build(), xController, yController, thetaController);
   }
+
+  public CommandSwerveFollowSpline buildCommand(SubsystemSwerveDrivetrain subsystem) {
+    return new CommandSwerveFollowSpline(subsystem, this.build(), FollowConstants.xyController(),
+        FollowConstants.xyController(), FollowConstants.thetaController());
+  }
 }

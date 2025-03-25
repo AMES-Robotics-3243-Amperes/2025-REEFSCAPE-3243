@@ -15,12 +15,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.DataManager;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.SplineConstants.FollowConstants;
+import frc.robot.Constants.SplineConstants.TaskConstants;
 import frc.robot.Constants.SwerveConstants.ChassisKinematics;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.splines.PathFactory;
 import frc.robot.splines.interpolation.LinearInterpolator;
-import frc.robot.splines.tasks.FinishBeforeTask;
+import frc.robot.splines.tasks.PerformAtTask;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 
@@ -120,11 +120,11 @@ public class PositionUtils {
 
         return PathFactory.newFactory()
             .addTask(nearestScoringPosition.getTranslation(),
-                new FinishBeforeTask(new ElevatorMoveToPositionCommand(elevator, elevatorSetpoint)))
+                new PerformAtTask(nearestScoringPosition.getRotation(), TaskConstants.defaultRotationTolerance,
+                    TaskConstants.defaultPositionBuffer, new ElevatorMoveToPositionCommand(elevator, elevatorSetpoint)))
             .interpolateFromStart(true)
             .interpolator(new LinearInterpolator())
-            .buildCommand(drivetrain, FollowConstants.xyController(), FollowConstants.xyController(),
-                FollowConstants.thetaController());
+            .buildCommand(drivetrain);
       }
     },
         Set.of(drivetrain, elevator));

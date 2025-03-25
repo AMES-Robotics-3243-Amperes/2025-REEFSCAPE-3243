@@ -124,7 +124,7 @@ public class ControlPointList {
 
     // make sure that no task ends after a task that proceeds it. this allows us to
     // only deal with one task per subsystem at a time
-    double earliestEnd = Double.MAX_VALUE;
+    double earliestEnd = spline.arcLength(1);
     List<Task> tasks = getTasks();
     ListIterator<Task> it = tasks.listIterator(tasks.size());
     while (it.hasPrevious()) {

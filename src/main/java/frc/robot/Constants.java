@@ -280,12 +280,12 @@ public final class Constants {
     public static final class TaskConstants {
       public static final Rotation2d defaultRotationTolerance = Rotation2d.fromDegrees(2.5);
       public static final double defaultPositionTolerance = Units.inchesToMeters(0.3);
-      public static final double defaultPositionBuffer = 0.1;
+      public static final double defaultPositionBuffer = 0.3;
     }
 
     public static final class FollowConstants {
       public static final SplineInterpolator defaultInterpolator = new LinearInterpolator(); // Could change to cubic
-      public static final double maxSpeed = 0.5;
+      public static final double maxSpeed = 0.8;
       public static final double maxCentrifugalAcceleration = 2;
       public static final double maxAccelAfterTask = 1.5;
       public static final boolean interpolateFromStart = true;
