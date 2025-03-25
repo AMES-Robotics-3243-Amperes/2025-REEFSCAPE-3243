@@ -150,27 +150,27 @@ public class RobotContainer {
         .onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.store));
     
     // reef automatics
-    primaryController.pov(45).and(primaryController.y()).onTrue(
+    primaryController.povUpRight().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L4,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.pov(90).and(primaryController.y()).onTrue(
+    primaryController.povRight().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L3,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.pov(135).and(primaryController.y()).onTrue(
+    primaryController.povDownRight().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L2,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.pov(225).and(primaryController.y()).onTrue(
+    primaryController.povDownLeft().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L2,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.pov(270).and(primaryController.y()).onTrue(
+    primaryController.povLeft().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L3,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.pov(270).and(primaryController.y()).onTrue(
+    primaryController.povUpLeft().and(primaryController.y()).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L4,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
