@@ -22,20 +22,15 @@ import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.GetCameraOffset;
 import frc.robot.commands.automatics.L1AutoCommand;
-import frc.robot.commands.automatics.L1DoubleHitScore;
 import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.L4AutoCommand;
 import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
-import frc.robot.commands.leds.CommandLedPattern;
 import frc.robot.commands.leds.CommandLedPatternCycle;
-<<<<<<< HEAD
 import frc.robot.commands.leds.CommandLedsFromElevatorPosition;
-=======
 import frc.robot.splines.PathFactory;
->>>>>>> photon-improvements
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.SubsystemLeds;
