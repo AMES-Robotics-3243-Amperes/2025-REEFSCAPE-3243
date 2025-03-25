@@ -259,18 +259,19 @@ public final class Constants {
   public static final class PhotonvisionConstants {
 
     public static final PhotonCameraGroup cameraGroup = new PhotonCameraGroup(
-        new PhotonCameraSetup(new PhotonCamera("FrontCenterCamera"), new Transform3d(new Pose3d(),
-            new Pose3d(new Translation3d(Units.inchesToMeters(6.7),
-                Units.inchesToMeters(11), Units.inchesToMeters(7.1875)),
-                new Rotation3d(0, 0, Units.degreesToRadians(0))))),
-        new PhotonCameraSetup(new PhotonCamera("BackRightCamera"), new Transform3d(new Pose3d(),
-            new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-                Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
-                new Rotation3d(0, 0, Units.degreesToRadians(215))))),
-        new PhotonCameraSetup(new PhotonCamera("BackLeftCamera"), new Transform3d(new Pose3d(),
-            new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-                Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
-                new Rotation3d(0, 0, Units.degreesToRadians(145))))));
+        new PhotonCameraSetup(new PhotonCamera("FrontLeftCamera"),
+            new Transform3d(new Translation3d(0.072702168663761, 0.45509278061041536, 0.20121528823603776),
+                new Rotation3d(0.06280283225338665, -0.03371785334821224, -0.7028873363435759))));
+    // new PhotonCameraSetup(new PhotonCamera("BackRightCamera"), new
+    // Transform3d(new Pose3d(),
+    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+    // Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
+    // new Rotation3d(0, 0, Units.degreesToRadians(215))))),
+    // new PhotonCameraSetup(new PhotonCamera("BackLeftCamera"), new Transform3d(new
+    // Pose3d(),
+    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
+    // Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
+    // new Rotation3d(0, 0, Units.degreesToRadians(145))))));
 
     public static final double photonUnitAmbiguityCutoff = 0.1;
 
@@ -293,7 +294,7 @@ public final class Constants {
 
     public static final class FollowConstants {
       public static final SplineInterpolator defaultInterpolator = new LinearInterpolator(); // Could change to cubic
-      public static final double maxSpeed = 2.8;
+      public static final double maxSpeed = 0.5;
       public static final double maxCentrifugalAcceleration = 2;
       public static final double maxAccelAfterTask = 1.5;
       public static final boolean interpolateFromStart = true;

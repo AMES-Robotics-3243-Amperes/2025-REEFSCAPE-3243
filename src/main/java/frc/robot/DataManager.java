@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.PhotonvisionConstants;
+import frc.robot.Constants.SwerveConstants.ChassisKinematics;
 import frc.robot.Constants.ElevatorPositions;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemSwerveDrivetrain;
@@ -55,6 +56,8 @@ public class DataManager {
 
     public RobotPosition(RobotContainer robotContainer) {
       subsystemSwerveDrivetrain = robotContainer.subsystemSwerveDrivetrain;
+      poseEstimator = new SwerveDrivePoseEstimator(ChassisKinematics.kDriveKinematics, imu.getRotation(),
+          subsystemSwerveDrivetrain.getModulePositions(), new Pose2d());
     }
 
     public void update() {
@@ -64,7 +67,7 @@ public class DataManager {
       if (measurement.isPresent()) {
         double ambiguity = measurement.get().ambiguity;
         poseEstimator.addVisionMeasurement(measurement.get().pose.estimatedPose.toPose2d(),
-            measurement.get().pose.timestampSeconds, VecBuilder.fill(ambiguity, ambiguity, ambiguity));
+            measurement.get().pose.timestampSeconds, VecBuilder.fill(ambiguity + 0.5, ambiguity + 0.5, ambiguity + 0.5));
       }
 
       field2d.setRobotPose(get());

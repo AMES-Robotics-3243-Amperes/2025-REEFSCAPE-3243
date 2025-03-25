@@ -10,16 +10,20 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.PhotonvisionConstants;
 
 public class GetCameraOffset extends Command {
   private PhotonCamera camera;
   private Transform3d robotToTag;
   private Timer timer = new Timer();
 
-  private Transform3d transformSums = new Transform3d();
+  private Translation3d translationSums = new Translation3d();
+  private Rotation3d cameraToTagRotation = new Rotation3d();
   private long transformCount = 0;
 
   /** Creates a new GetCameraOffset. */
@@ -32,6 +36,9 @@ public class GetCameraOffset extends Command {
   @Override
   public void initialize() {
     timer.restart();
+    translationSums = new Translation3d();
+    cameraToTagRotation = new Rotation3d();
+    transformCount = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,11 +47,19 @@ public class GetCameraOffset extends Command {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
     for (PhotonPipelineResult result : results) {
       PhotonTrackedTarget target = result.getBestTarget();
-      if (target.poseAmbiguity > 0.04) {
+
+      if (target == null) {
         continue;
       }
-      
-      transformSums = transformSums.plus(target.bestCameraToTarget);
+
+      if (target.poseAmbiguity > PhotonvisionConstants.photonUnitAmbiguityCutoff) {
+        continue;
+      }
+
+      Transform3d transform = target.getBestCameraToTarget();
+
+      translationSums = translationSums.plus(transform.getTranslation());
+      cameraToTagRotation = transform.getRotation();
       transformCount++;
     }
   }
@@ -52,22 +67,28 @@ public class GetCameraOffset extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Transform3d cameraToTarget = transformSums.div(transformCount);
-    Transform3d robotToCamera = robotToTag.plus(cameraToTarget.inverse());
+    Rotation3d robotToCameraRotation = robotToTag.getRotation().minus(cameraToTagRotation);
+    Translation3d cameraToTag = translationSums.div(transformCount).rotateBy(robotToCameraRotation.times(-1));
+    Transform3d robotToCamera = new Transform3d(
+        robotToTag.getTranslation().minus(cameraToTag),
+        robotToCameraRotation);
 
+    System.out.println("");
     System.out.println("=====================");
     System.out.println("Camera Offset Results");
     System.out.println("=====================");
-    System.out.println("Robot To Camera Rotation:" + robotToCamera.getRotation());
-    System.out.println("Robot To Camera Translation:" + robotToCamera.getTranslation());
-    System.out.println("Robot To Camera Transform:" + robotToCamera);
+    System.out.println("Robot To Camera Translation: new Translation3d(" + robotToCamera.getTranslation().getX() + ", "
+        + (-robotToCamera.getTranslation().getY()) + ", " + robotToCamera.getTranslation().getZ() + ")");
+    System.out.println("Robot To Camera Rotation: new Rotation3d(" + robotToCamera.getRotation().getX() + ", "
+        + robotToCamera.getRotation().getY() + ", " + robotToCamera.getRotation().getZ() + ")");
     System.out.println("=====================");
+    System.out.println("");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(10);
+    return timer.hasElapsed(7);
   }
 
   @Override

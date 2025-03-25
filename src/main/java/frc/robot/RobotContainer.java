@@ -10,11 +10,13 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
@@ -24,12 +26,15 @@ import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
 import frc.robot.commands.leds.CommandLedPatternCycle;
+import frc.robot.splines.PathFactory;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.SubsystemLeds;
 import frc.robot.subsystems.SubsystemSwerveDrivetrain;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.ElevatorPositions;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.SplineConstants.FollowConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -133,11 +138,16 @@ public class RobotContainer {
     leftYDown.whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.downNudgeVelocity));
 
     mainTab.add("Zero Elevator", new ElevatorZeroCommand(subsystemElevator)).withWidget(BuiltInWidgets.kCommand);
-    mainTab
-        .add("Get Robot to Camera",
-            new GetCameraOffset(new PhotonCamera("FrontCenterCamera"),
-                new Transform3d(new Pose3d(), new Pose3d(1, 0, 0, new Rotation3d(Rotation2d.fromDegrees(180))))))
-        .withWidget(BuiltInWidgets.kCommand);
+    secondaryController.povUp()
+        .onTrue(
+            new GetCameraOffset(new PhotonCamera("FrontLeftCamera"),
+                new Transform3d(new Pose3d(), new Pose3d(Units.inchesToMeters(6.95 + 13), 0, Units.inchesToMeters(11.8),
+                    new Rotation3d(Rotation2d.fromDegrees(180))))));
+    // secondaryController.povDown().onTrue(newCommandSwerveGetOffset(subsystemSwerveDrivetrain));
+    secondaryController.povDown().whileTrue(PathFactory.newFactory().addPoint(FieldConstants.fieldLayout.getTagPose(9)
+        .get().plus(new Transform3d(Units.inchesToMeters(13 + 4), -Units.inchesToMeters(12.9 / 2.0) * 0, 0, new Rotation3d())).getTranslation().toTranslation2d())
+        .interpolateFromStart(true).buildCommand(subsystemSwerveDrivetrain, FollowConstants.xyController(),
+            FollowConstants.xyController(), FollowConstants.thetaController()));
 
     primaryController.b().onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
     primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
