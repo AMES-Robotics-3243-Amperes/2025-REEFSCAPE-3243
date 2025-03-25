@@ -192,8 +192,8 @@ public final class Constants {
 
     public static final double min = 0.0;
     public static final double starting = min;
-    public static final double store = 0.03;
-    public static final double loading = 0.6;// Units.inchesToMeters(37 - angledOffset23);
+    public static final double store = 0.0;
+    public static final double loading = 0.0;// Units.inchesToMeters(37 - angledOffset23);
     public static final double L1 = 0.225;// Units.inchesToMeters(18 + angledOffset23);
     public static final double L2 = 0.525;// Units.inchesToMeters(31.2 + angledOffset23);
     public static final double L3 = 0.93;// Units.inchesToMeters(47.025 + angledOffset23);
