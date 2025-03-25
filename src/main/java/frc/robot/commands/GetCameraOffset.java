@@ -14,9 +14,12 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.PhotonvisionConstants;
@@ -28,7 +31,7 @@ public class GetCameraOffset extends Command {
 
   private Translation3d translationSums = new Translation3d();
   private Rotation3d cameraToTagRotation = new Rotation3d();
-  private List<Rotation3d> cameraToTagRotations = new ArrayList<Rotation3d>();
+  private Vector<N3> totalRotationVector = new Vector<N3>(Nat.N3());
   private long transformCount = 0;
 
   /** Creates a new GetCameraOffset. */
@@ -43,7 +46,7 @@ public class GetCameraOffset extends Command {
     timer.restart();
     translationSums = new Translation3d();
     cameraToTagRotation = new Rotation3d();
-    cameraToTagRotations = new ArrayList<Rotation3d>();
+    totalRotationVector = new Vector<N3>(Nat.N3());
     transformCount = 0;
   }
 
@@ -66,7 +69,7 @@ public class GetCameraOffset extends Command {
 
       translationSums = translationSums.plus(transform.getTranslation());
       cameraToTagRotation = transform.getRotation();
-      cameraToTagRotations.add(cameraToTagRotation);
+      totalRotationVector = totalRotationVector.plus(cameraToTagRotation.toVector());
       transformCount++;
     }
   }
@@ -77,12 +80,9 @@ public class GetCameraOffset extends Command {
     // rotations are hard to average (the "average" of two 180 degree rotations is
     // 0, for example). we just take the latest result.
 
-    // H! New, untested code to average a bunch of rotations. There's fancy stuff
-    // you could do with averaging the rotation matrices and then renormalizing and
-    // orthogonalizing them, but we just look at all of them, and interpolate between
-    // them in a binary tree fashion. This isn't perfect, but should be pretty good.
-    Rotation3d averageRotation = averageRotations(cameraToTagRotations);
-    
+    // Just averaging the vector representations
+    Rotation3d averageRotation = new Rotation3d(totalRotationVector.div(transformCount));
+
     Transform3d cameraToTag = new Transform3d(translationSums.div(transformCount), cameraToTagRotation);
     Transform3d robotToCamera = robotToTag.plus(cameraToTag.inverse());
 
@@ -107,29 +107,5 @@ public class GetCameraOffset extends Command {
   @Override
   public boolean runsWhenDisabled() {
     return true;
-  }
-
-  /** 
-   * Calculates an "average" rotation by combining pairs of rotations until only one remains.
-   * @param rotations The list of rotations to average. Will be shuffled.
-   * @return The "average" rotation. Not a precise notion of average.
-   * @author Hale Barber
-   */
-  private Rotation3d averageRotations(List<Rotation3d> rotations) {
-    Collections.shuffle(rotations);
-    Queue<Rotation3d> rotationQueue = new ArrayDeque<Rotation3d>(rotations);
-
-    // Repeatedly averages the first two rotations, putting the result on the back
-    // of the queue. This ensures the most "raw" (fewest number of applied averagings)
-    // Rotations are selected first.
-    while (rotationQueue.size() > 1) {
-      // Pulls the first two rotations and finds their midpoint. This is then added to the back.
-      rotationQueue.add
-      (
-        rotationQueue.poll().interpolate(rotationQueue.poll(), 0.5)
-      );
-    }
-
-    return rotationQueue.poll();
   }
 }
