@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 
@@ -16,9 +15,14 @@ public class CommandSwerveGetOffset extends InstantCommand {
   @Override
   public void execute() {
     SwerveModulePosition[] positions = drivetrain.getAbsoluteModulePositions();
-    SmartDashboard.putNumber("Front Left Offset", positions[0].angle.getRadians());
-    SmartDashboard.putNumber("Front Right Offset", positions[1].angle.getRadians());
-    SmartDashboard.putNumber("Rear Left Offset", positions[2].angle.getRadians());
-    SmartDashboard.putNumber("Rear Right Offset", positions[3].angle.getRadians());
+    System.out.println("Front Left Offset:" + positions[0].angle.getRadians());
+    System.out.println("Front Right Offset:" + positions[1].angle.getRadians());
+    System.out.println("Rear Left Offset:" + positions[2].angle.getRadians());
+    System.out.println("Rear Right Offset:" + positions[3].angle.getRadians());
+  }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
   }
 }

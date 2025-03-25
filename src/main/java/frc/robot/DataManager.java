@@ -1,23 +1,23 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
-import edu.wpi.first.math.MathSharedStore;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.PhotonvisionConstants;
 import frc.robot.Constants.SwerveConstants.ChassisKinematics;
 import frc.robot.Constants.ElevatorPositions;
-import frc.robot.PhotonUnit.Measurement;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.utility.AHRS_IMU;
 import frc.robot.utility.IMU;
+import frc.robot.utility.PhotonCameraGroup;
+import frc.robot.utility.PhotonCameraGroup.Measurement;
 
 public class DataManager {
   /** Singleton instance */
@@ -48,48 +48,27 @@ public class DataManager {
     /** used to combine vision and odometry data */
     private SwerveDrivePoseEstimator poseEstimator;
 
-    private double previousTimestamp = 0;
-    private Translation2d previousPosition = new Translation2d();
-    private Translation2d velocity = new Translation2d();
-
     private SubsystemSwerveDrivetrain subsystemSwerveDrivetrain;
-    private List<PhotonUnit> photonUnits = new ArrayList<PhotonUnit>();
+    private PhotonCameraGroup photonGroup = PhotonvisionConstants.cameraGroup;
     private IMU imu = new AHRS_IMU();
 
     private Field2d field2d = new Field2d();
 
     public RobotPosition(RobotContainer robotContainer) {
       subsystemSwerveDrivetrain = robotContainer.subsystemSwerveDrivetrain;
-      this.photonUnits = new ArrayList<PhotonUnit>(PhotonvisionConstants.photonUnits);
-
       poseEstimator = new SwerveDrivePoseEstimator(ChassisKinematics.kDriveKinematics, imu.getRotation(),
           subsystemSwerveDrivetrain.getModulePositions(), new Pose2d());
     }
 
     public void update() {
       poseEstimator.update(imu.getRotation(), subsystemSwerveDrivetrain.getModulePositions());
+      Optional<Measurement> measurement = photonGroup.getMeasurement(get().getRotation(), Timer.getFPGATimestamp());
 
-      for (var unit : photonUnits) {
-        for (Measurement measurement : unit.getMeasurement()) {
-          Pose3d threeDPose = new Pose3d(poseEstimator.getEstimatedPosition());
-          double distance = threeDPose.plus(unit.getRobotToCamera()).toPose2d().getTranslation()
-              .getDistance(measurement.targetPosition);
-
-          if (distance < PhotonvisionConstants.photonUnitMinDistance 
-              || velocity.getNorm() > PhotonvisionConstants.photonUnitVelocityCutoff)
-            continue;
-
-          poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestampSeconds,
-              measurement.ambiguity.times(PhotonvisionConstants.poseEstimatorAmbiguityScaleFactor
-                  * (distance + velocity.getNorm() + 1)));
-        }
+      if (measurement.isPresent()) {
+        double ambiguity = measurement.get().ambiguity;
+        poseEstimator.addVisionMeasurement(measurement.get().pose.estimatedPose.toPose2d(),
+            measurement.get().pose.timestampSeconds, VecBuilder.fill(ambiguity + 0.5, ambiguity + 0.5, ambiguity + 0.5));
       }
-
-      double currentTimestamp = MathSharedStore.getTimestamp();
-      Translation2d currentPosition = poseEstimator.getEstimatedPosition().getTranslation();
-      velocity = currentPosition.minus(previousPosition).times(currentTimestamp - previousTimestamp);
-      previousTimestamp = currentTimestamp;
-      previousPosition = currentPosition;
 
       field2d.setRobotPose(get());
       SmartDashboard.putData(field2d);
