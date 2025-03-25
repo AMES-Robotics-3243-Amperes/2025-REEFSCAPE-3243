@@ -104,7 +104,7 @@ public class RobotContainer {
   private void setAutoCommands() {
     autoSelector.addDefault(new InstantCommand(), "None");
     autoSelector.add(new TaxiCommand(subsystemSwerveDrivetrain, 0.5), "Small Taxi");
-    autoSelector.add(new L1AutoCommand(subsystemSwerveDrivetrain, endEffector));
+    autoSelector.add(new L1AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector, DataManager.instance()));
     autoSelector.add(new L2AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector));
     autoSelector.add(new L4AutoCommand(subsystemSwerveDrivetrain, subsystemElevator, endEffector));
   }

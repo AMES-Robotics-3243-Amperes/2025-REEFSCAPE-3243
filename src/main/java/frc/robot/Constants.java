@@ -259,10 +259,18 @@ public final class Constants {
 
   public static final class PhotonvisionConstants {
 
-    public static final PhotonCameraGroup cameraGroup = new PhotonCameraGroup(
-        new PhotonCameraSetup(new PhotonCamera("FrontLeftCamera"),
-            new Transform3d(new Translation3d(0.072702168663761, 0.32809278061041536, 0.20121528823603776),
-                new Rotation3d(0.06280283225338665, -0.03371785334821224, -0.7028873363435759))));
+    public static final PhotonCameraGroup cameraGroup = new PhotonCameraGroup
+    (
+      new PhotonCameraSetup
+      (
+        new PhotonCamera("FrontLeftCamera"),
+        new Transform3d
+        (
+          new Translation3d(0.072702168663761, 0.32809278061041536, 0.20121528823603776),
+          new Rotation3d(0.06280283225338665, -0.03371785334821224, -0.7028873363435759)
+        )
+      )
+    );
 
     public static final double photonUnitAmbiguityCutoff = 0.1;
 
