@@ -67,11 +67,10 @@ public class GetCameraOffset extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Rotation3d robotToCameraRotation = robotToTag.getRotation().minus(cameraToTagRotation);
-    Translation3d cameraToTag = translationSums.div(transformCount).rotateBy(robotToCameraRotation.times(-1));
-    Transform3d robotToCamera = new Transform3d(
-        robotToTag.getTranslation().minus(cameraToTag),
-        robotToCameraRotation);
+    // rotations are hard to average (the "average" of two 180 degree rotations is
+    // 0, for example). we just take the latest result.
+    Transform3d cameraToTag = new Transform3d(translationSums.div(transformCount), cameraToTagRotation);
+    Transform3d robotToCamera = robotToTag.plus(cameraToTag.inverse());
 
     System.out.println("");
     System.out.println("=====================");
@@ -88,7 +87,7 @@ public class GetCameraOffset extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(7);
+    return timer.hasElapsed(5);
   }
 
   @Override

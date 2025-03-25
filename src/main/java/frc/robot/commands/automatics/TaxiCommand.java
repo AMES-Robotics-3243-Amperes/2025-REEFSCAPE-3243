@@ -2,7 +2,6 @@ package frc.robot.commands.automatics;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.subsystems.swerve.control.DriveWithSpeeds;
 

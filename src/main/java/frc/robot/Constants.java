@@ -6,11 +6,8 @@ package frc.robot;
 
 import java.util.List;
 
-<<<<<<< HEAD
-=======
 import org.photonvision.PhotonCamera;
 
->>>>>>> photon-improvements
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -69,9 +66,9 @@ public final class Constants {
 
     public static final class ChassisKinematics {
       // :3 distance between centers of right and left wheels on robot
-      public static final double kRobotWidth = Units.inchesToMeters(15);
+      public static final double kRobotWidth = Units.inchesToMeters(26);
       // :3 distance between front and back wheels on robot
-      public static final double kRobotLength = Units.inchesToMeters(15);
+      public static final double kRobotLength = Units.inchesToMeters(26);
 
       public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
           new Translation2d(kRobotLength / 2, kRobotWidth / 2),
@@ -264,18 +261,8 @@ public final class Constants {
 
     public static final PhotonCameraGroup cameraGroup = new PhotonCameraGroup(
         new PhotonCameraSetup(new PhotonCamera("FrontLeftCamera"),
-            new Transform3d(new Translation3d(0.072702168663761, 0.45509278061041536, 0.20121528823603776),
+            new Transform3d(new Translation3d(0.072702168663761, 0.32809278061041536, 0.20121528823603776),
                 new Rotation3d(0.06280283225338665, -0.03371785334821224, -0.7028873363435759))));
-    // new PhotonCameraSetup(new PhotonCamera("BackRightCamera"), new
-    // Transform3d(new Pose3d(),
-    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-    // Units.inchesToMeters(-7), Units.inchesToMeters(7.1875)),
-    // new Rotation3d(0, 0, Units.degreesToRadians(215))))),
-    // new PhotonCameraSetup(new PhotonCamera("BackLeftCamera"), new Transform3d(new
-    // Pose3d(),
-    // new Pose3d(new Translation3d(Units.inchesToMeters(-12.5),
-    // Units.inchesToMeters(7), Units.inchesToMeters(7.1875)),
-    // new Rotation3d(0, 0, Units.degreesToRadians(145))))));
 
     public static final double photonUnitAmbiguityCutoff = 0.1;
 
@@ -303,7 +290,7 @@ public final class Constants {
       public static final double maxAccelAfterTask = 1.5;
       public static final boolean interpolateFromStart = true;
 
-      public static final double staticThetaVelocity = 0.12;
+      public static final double staticThetaVelocity = 0.2;
 
       /**
        * Returns a sensible default x/y PID controller for spline following
@@ -316,7 +303,7 @@ public final class Constants {
        * Returns a sensible default theta PID controller for spline following
        */
       public static final ProfiledPIDController thetaController() {
-        ProfiledPIDController thetaController = new ProfiledPIDController(1.2, 0, 0,
+        ProfiledPIDController thetaController = new ProfiledPIDController(1.6, 0, 0,
             new Constraints(50 * Math.PI, 50 * Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         thetaController.setIZone(3 * Math.PI / 16);
@@ -357,7 +344,7 @@ public final class Constants {
        * of remaining valid length to execute a task.
        */
       public static final double splineTaskVelocityDampen(double remainingLength) {
-        return 5 * remainingLength + 0.2;
+        return 0.8 * remainingLength + 0.1;
       }
     }
   }

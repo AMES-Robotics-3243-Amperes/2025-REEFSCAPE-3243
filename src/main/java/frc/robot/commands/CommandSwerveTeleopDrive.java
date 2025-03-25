@@ -53,7 +53,7 @@ public class CommandSwerveTeleopDrive extends Command {
 
   @Override
   public void execute() {
-    Translation2d rawControllerVelocity = new Translation2d(controller.getLeftY(), controller.getLeftX());
+    Translation2d rawControllerVelocity = new Translation2d(-controller.getLeftY(), -controller.getLeftX());
     Translation2d velocity = rawControllerVelocity.times(ControlConstants.movingSpeed);
     velocity = velocity
         .times(MathUtil.interpolate(1, ControlConstants.leftTriggerMultiplier, controller.getLeftTriggerAxis()))

@@ -18,27 +18,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.CommandSwerveGetOffset;
 import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.GetCameraOffset;
 import frc.robot.commands.automatics.L1AutoCommand;
 import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.L4AutoCommand;
+import frc.robot.commands.automatics.PositionUtils;
 import frc.robot.commands.automatics.TaxiCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
-import frc.robot.commands.leds.CommandLedPatternCycle;
 import frc.robot.commands.leds.CommandLedsFromElevatorPosition;
-import frc.robot.splines.PathFactory;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.SubsystemLeds;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.ElevatorPositions;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.SplineConstants.FollowConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -60,9 +58,6 @@ public class RobotContainer {
   private JoyUtil primaryController = new JoyUtil(0);
   private JoyUtil secondaryController = new JoyUtil(1);
 
-  // Path Factory for auto routine
-  // PathFactory pathFactory = PathFactory.newFactory();
-
   //
   // Subsystems
   //
@@ -78,7 +73,6 @@ public class RobotContainer {
 
   private CommandSwerveTeleopDrive commandSwerveTeleopDrive = new CommandSwerveTeleopDrive(subsystemSwerveDrivetrain,
       primaryController);
-  private CommandLedPatternCycle commandLedPatternCycle = new CommandLedPatternCycle(subsystemLeds);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -148,23 +142,47 @@ public class RobotContainer {
 
     mainTab.add("Zero Elevator", new ElevatorZeroCommand(subsystemElevator)).withWidget(BuiltInWidgets.kCommand);
 
-    secondaryController.povUp()
-        .onTrue(
-            new GetCameraOffset(new PhotonCamera("FrontLeftCamera"),
-                new Transform3d(new Pose3d(), new Pose3d(Units.inchesToMeters(6.95 + 13), 0, Units.inchesToMeters(11.8),
-                    new Rotation3d(Rotation2d.fromDegrees(180))))));
-    // secondaryController.povDown().onTrue(newCommandSwerveGetOffset(subsystemSwerveDrivetrain));
-    secondaryController.povDown().whileTrue(PathFactory.newFactory().addPoint(FieldConstants.fieldLayout.getTagPose(9)
-        .get().plus(new Transform3d(Units.inchesToMeters(13 + 4), -Units.inchesToMeters(12.9 / 2.0) * 0, 0, new Rotation3d())).getTranslation().toTranslation2d())
-        .interpolateFromStart(true).buildCommand(subsystemSwerveDrivetrain, FollowConstants.xyController(),
-            FollowConstants.xyController(), FollowConstants.thetaController()));
-
     primaryController.b().onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
     primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
     primaryController.leftBumper().onTrue(new ElevatorZeroCommand(subsystemElevator));
 
     primaryController.x().or(primaryController.rightBumper())
         .onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.store));
+    
+    // reef automatics
+    primaryController.pov(45).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L4,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    primaryController.pov(90).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L3,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    primaryController.pov(135).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L2,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    primaryController.pov(225).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L2,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    primaryController.pov(270).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L3,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    primaryController.pov(270).and(primaryController.y()).onTrue(
+        PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L4,
+            subsystemSwerveDrivetrain, subsystemElevator)
+    );
+    
+    // debug info
+    secondaryController.povUp()
+        .onTrue(
+            new GetCameraOffset(new PhotonCamera("FrontLeftCamera"),
+                new Transform3d(new Pose3d(),
+                    new Pose3d(Units.inchesToMeters(6 + 13), 0, Units.inchesToMeters(11.8),
+                        new Rotation3d(Rotation2d.fromDegrees(180))))));
+    secondaryController.povDown().onTrue(new CommandSwerveGetOffset(subsystemSwerveDrivetrain));
   }
 
   /**
