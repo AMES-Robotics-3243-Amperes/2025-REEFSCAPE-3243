@@ -28,7 +28,7 @@ public class PositionUtils {
   public static class PositionUtilsConstants {
     // the distance between the edge of the robot chasis and the apriltag
     // in the given setpoins. remember to account for bumpers.
-    public static double offsetFromTag = Units.inchesToMeters(3);
+    public static double offsetFromTag = Units.inchesToMeters(2.5);
 
     public static double distanceBetweenReefs = Units.inchesToMeters(12.9);
   }

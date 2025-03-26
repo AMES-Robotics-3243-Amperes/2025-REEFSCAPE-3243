@@ -30,7 +30,7 @@ public class TaxiCommand extends Command {
   @Override
   public void execute() {
     drivetrain.setControlRequest(
-        DriveWithSpeeds.newRequest(0.25, 0, 0).fieldRelative(false).limitSpeed(false).limitAccelaration(false));
+        DriveWithSpeeds.newRequest(0.7, 0, 0).fieldRelative(false).limitSpeed(false).limitAccelaration(false));
   }
 
   // Called once the command ends or is interrupted.

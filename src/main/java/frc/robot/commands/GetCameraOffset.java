@@ -4,12 +4,7 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -82,8 +77,7 @@ public class GetCameraOffset extends Command {
 
     // Just averaging the vector representations
     Rotation3d averageRotation = new Rotation3d(totalRotationVector.div(transformCount));
-
-    Transform3d cameraToTag = new Transform3d(translationSums.div(transformCount), cameraToTagRotation);
+    Transform3d cameraToTag = new Transform3d(translationSums.div(transformCount), averageRotation);
     Transform3d robotToCamera = robotToTag.plus(cameraToTag.inverse());
 
     System.out.println("");
@@ -91,7 +85,7 @@ public class GetCameraOffset extends Command {
     System.out.println("Camera Offset Results");
     System.out.println("=====================");
     System.out.println("Robot To Camera Translation: new Translation3d(" + robotToCamera.getTranslation().getX() + ", "
-        + (-robotToCamera.getTranslation().getY()) + ", " + robotToCamera.getTranslation().getZ() + ")");
+        + robotToCamera.getTranslation().getY() + ", " + robotToCamera.getTranslation().getZ() + ")");
     System.out.println("Robot To Camera Rotation: new Rotation3d(" + robotToCamera.getRotation().getX() + ", "
         + robotToCamera.getRotation().getY() + ", " + robotToCamera.getRotation().getZ() + ")");
     System.out.println("=====================");
