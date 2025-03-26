@@ -49,19 +49,20 @@ public final class Constants {
 
   public static final class SwerveConstants {
     public static final class ControlConstants {
-      public static final double movingSpeed = 0.5;
-      public static final double maxSpeed = 5;
-      public static final double maxSpeedAtMaxElevatorExtension = 0.2;
+      public static final double movingSpeed = 2.5;
+      public static final double maxSpeedAtMaxElevatorExtension = 3;
 
-      public static final double accelerationLimitSafetyFactor = 1.5;
+      public static final double accelerationLimitSafetyFactor = 1.2;
       public static final double baseCenterOfMass = Units.inchesToMeters(12 - 1);
       public static final double baseAcceleration = Units.inchesToMeters(17) * 9.8 / baseCenterOfMass; // hale, if you're reading this, this is alpha / beta // Got it, thanks!
-      public static final double percentOfWeightInElevator = Units.inchesToMeters(21 - 12);
+      public static final double percentOfWeightInElevator = Units.inchesToMeters(21 - 12) * 2;
 
       public static final double rotationSpeed = 1.2 * Math.PI;
 
-      public static final double leftTriggerMultiplier = 2.5;
+      public static final double leftTriggerMultiplier = 2.8;
       public static final double rightTriggerMultiplier = 0.3;
+
+      public static final double maxSpeed = movingSpeed * leftTriggerMultiplier;
     }
 
     public static final class ChassisKinematics {
@@ -91,10 +92,10 @@ public final class Constants {
       }
 
       public static final class ModuleOffsets {
-        public static final Rotation2d kFrontLeftOffset = Rotation2d.fromRadians(-2.224);
-        public static final Rotation2d kFrontRightOffset = Rotation2d.fromRadians(-0.178);
-        public static final Rotation2d kBackLeftOffset = Rotation2d.fromRadians(6.195);
-        public static final Rotation2d kBackRightOffset = Rotation2d.fromRadians(-2.763);
+        public static final Rotation2d kFrontLeftOffset = Rotation2d.fromRadians(-1.3873889060558477 - Math.PI / 4);
+        public static final Rotation2d kFrontRightOffset = Rotation2d.fromRadians(2.1953972743766736 - 3 * Math.PI / 4);
+        public static final Rotation2d kBackLeftOffset = Rotation2d.fromRadians(-0.8581953481826812 + Math.PI / 4);
+        public static final Rotation2d kBackRightOffset = Rotation2d.fromRadians(-1.917575804205331 - Math.PI / 4);
       }
     }
 
@@ -108,7 +109,7 @@ public final class Constants {
         public static final double kDrivingKv = 0.11324;
         public static final double kDrivingKa = 0.034615;
 
-        public static final double kAzimuthP = 4.2;
+        public static final double kAzimuthP = 5.0;
         public static final double kAzimuthI = 0;
         public static final double kAzimuthD = 0.0;
         public static final double kTurningFF = 0;
@@ -164,8 +165,8 @@ public final class Constants {
     }
 
     public static class Control {
-      public static final double upNudgeVelocity = 0.25;
-      public static final double downNudgeVelocity = -0.25;
+      public static final double upNudgeVelocity = 0.8;
+      public static final double downNudgeVelocity = -0.8;
     }
 
     public static class SpeedSettings {
@@ -266,8 +267,8 @@ public final class Constants {
         new PhotonCamera("FrontLeftCamera"),
         new Transform3d
         (
-          new Translation3d(0.072702168663761, 0.32809278061041536, 0.20121528823603776),
-          new Rotation3d(0.06280283225338665, -0.03371785334821224, -0.7028873363435759)
+          new Translation3d(0.14163834229579275, 0.33860565362394696, 0.25163234271784),
+          new Rotation3d(-0.0622626015872526, 0.048240674027498945, -0.748289403686713)
         )
       )
     );
@@ -293,7 +294,7 @@ public final class Constants {
 
     public static final class FollowConstants {
       public static final SplineInterpolator defaultInterpolator = new LinearInterpolator(); // Could change to cubic
-      public static final double maxSpeed = 0.8;
+      public static final double maxSpeed = 0.5;
       public static final double maxCentrifugalAcceleration = 2;
       public static final double maxAccelAfterTask = 1.5;
       public static final boolean interpolateFromStart = true;

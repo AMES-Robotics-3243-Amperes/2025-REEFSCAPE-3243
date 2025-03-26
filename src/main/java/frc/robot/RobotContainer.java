@@ -23,6 +23,7 @@ import frc.robot.commands.CommandSwerveTeleopDrive;
 import frc.robot.commands.CommandSwerveXWheels;
 import frc.robot.commands.GetCameraOffset;
 import frc.robot.commands.automatics.L1AutoCommand;
+import frc.robot.commands.automatics.L1DoubleHitScore;
 import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.L4AutoCommand;
 import frc.robot.commands.automatics.PositionUtils;
@@ -130,6 +131,9 @@ public class RobotContainer {
     secondaryController.povRight().onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.loading));
 
+    secondaryController.start().whileTrue(
+        new L1DoubleHitScore(subsystemElevator, endEffector, DataManager.instance()));
+
     // Manual intaking/depositing, elevator movement, reef setpoints
     secondaryController.leftBumper().whileTrue(endEffector.intakeCommand());
     secondaryController.rightBumper().whileTrue(endEffector.continuousOuttakeCommand());
@@ -180,7 +184,7 @@ public class RobotContainer {
         .onTrue(
             new GetCameraOffset(new PhotonCamera("FrontLeftCamera"),
                 new Transform3d(new Pose3d(),
-                    new Pose3d(Units.inchesToMeters(6 + 13), 0, Units.inchesToMeters(11.8),
+                    new Pose3d(1, 0, Units.inchesToMeters(11.8),
                         new Rotation3d(Rotation2d.fromDegrees(180))))));
     secondaryController.povDown().onTrue(new CommandSwerveGetOffset(subsystemSwerveDrivetrain));
   }
