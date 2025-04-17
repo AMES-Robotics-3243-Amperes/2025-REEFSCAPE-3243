@@ -28,6 +28,8 @@ import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.L4AutoCommand;
 import frc.robot.commands.automatics.PositionUtils;
 import frc.robot.commands.automatics.TaxiCommand;
+import frc.robot.commands.elevator.ElevatorEjectCommand;
+import frc.robot.commands.elevator.ElevatorJumpCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
@@ -187,6 +189,10 @@ public class RobotContainer {
                     new Pose3d(1, 0, Units.inchesToMeters(11.8),
                         new Rotation3d(Rotation2d.fromDegrees(180))))));
     secondaryController.povDown().onTrue(new CommandSwerveGetOffset(subsystemSwerveDrivetrain));
+
+    // jump button
+    mainTab.add(new ElevatorJumpCommand(subsystemElevator));
+    mainTab.add(new ElevatorEjectCommand(subsystemElevator));
   }
 
   /**
