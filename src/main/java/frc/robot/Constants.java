@@ -49,7 +49,7 @@ public final class Constants {
 
   public static final class SwerveConstants {
     public static final class ControlConstants {
-      public static final double movingSpeed = 2.5;
+      public static final double movingSpeed = 1.75;
       public static final double maxSpeedAtMaxElevatorExtension = 3;
 
       public static final double accelerationLimitSafetyFactor = 1.2;
@@ -59,7 +59,7 @@ public final class Constants {
 
       public static final double rotationSpeed = 1.2 * Math.PI;
 
-      public static final double leftTriggerMultiplier = 2.8;
+      public static final double leftTriggerMultiplier = 2;
       public static final double rightTriggerMultiplier = 0.3;
 
       public static final double maxSpeed = movingSpeed * leftTriggerMultiplier;
@@ -81,14 +81,14 @@ public final class Constants {
     public static final class DriveTrainConstants {
       public static final class IDs {
         public static final int kFrontLeftDrivingCanId = 1;
-        public static final int kRearLeftDrivingCanId = 3;
-        public static final int kFrontRightDrivingCanId = 2;
-        public static final int kRearRightDrivingCanId = 4;
+        public static final int kRearLeftDrivingCanId = 5;
+        public static final int kFrontRightDrivingCanId = 3;
+        public static final int kRearRightDrivingCanId = 7;
 
-        public static final int kFrontLeftTurningCanId = 1;
-        public static final int kRearLeftTurningCanId = 3;
-        public static final int kFrontRightTurningCanId = 2;
-        public static final int kRearRightTurningCanId = 4;
+        public static final int kFrontLeftTurningCanId = 2;
+        public static final int kRearLeftTurningCanId = 6;
+        public static final int kFrontRightTurningCanId = 4;
+        public static final int kRearRightTurningCanId = 8;
       }
 
       public static final class ModuleOffsets {
