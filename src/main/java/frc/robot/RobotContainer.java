@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CommandSwerveGetOffset;
 import frc.robot.commands.CommandSwerveTeleopDrive;
@@ -33,10 +34,12 @@ import frc.robot.commands.elevator.ElevatorJumpCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
+import frc.robot.commands.leds.CommandLedPattern;
 import frc.robot.commands.leds.CommandLedsFromElevatorPosition;
 import frc.robot.subsystems.SubsystemElevator;
 import frc.robot.subsystems.SubsystemEndEffector;
 import frc.robot.subsystems.SubsystemLeds;
+import frc.robot.subsystems.SubsystemLeds.Mode;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.ElevatorPositions;
@@ -100,7 +103,16 @@ public class RobotContainer {
    * Used to set default commands for subsystems.
    */
   private void setDefaultCommands() {
-    subsystemLeds.setDefaultCommand(new CommandLedsFromElevatorPosition(subsystemLeds, DataManager.instance()));
+    subsystemLeds.setDefaultCommand
+    (
+        new SequentialCommandGroup
+        (
+            new CommandLedsFromElevatorPosition(subsystemLeds, DataManager.instance()).withTimeout(10),
+            new CommandLedPattern(subsystemLeds, Mode.OrangeFire).withTimeout(10),
+            new CommandLedPattern(subsystemLeds, Mode.HueCircle).withTimeout(10),
+            new CommandLedPattern(subsystemLeds, Mode.TransFlag).withTimeout(10)
+        ).repeatedly()
+    );
     subsystemSwerveDrivetrain.setDefaultCommand(commandSwerveTeleopDrive);
   }
 
