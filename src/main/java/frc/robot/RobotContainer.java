@@ -29,8 +29,6 @@ import frc.robot.commands.automatics.L2AutoCommand;
 import frc.robot.commands.automatics.L4AutoCommand;
 import frc.robot.commands.automatics.PositionUtils;
 import frc.robot.commands.automatics.TaxiCommand;
-import frc.robot.commands.elevator.ElevatorEjectCommand;
-import frc.robot.commands.elevator.ElevatorJumpCommand;
 import frc.robot.commands.elevator.ElevatorMoveToPositionCommand;
 import frc.robot.commands.elevator.ElevatorNudgeCommand;
 import frc.robot.commands.elevator.ElevatorZeroCommand;
@@ -43,6 +41,8 @@ import frc.robot.subsystems.SubsystemLeds.Mode;
 import frc.robot.subsystems.swerve.SubsystemSwerveDrivetrain;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.ElevatorPositions;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import java.util.function.BooleanSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -80,6 +80,13 @@ public class RobotContainer {
   private CommandSwerveTeleopDrive commandSwerveTeleopDrive = new CommandSwerveTeleopDrive(subsystemSwerveDrivetrain,
       primaryController);
 
+      
+  public enum ControlScheme { MULTIPLAYER, SINGLEPLAYER }
+  private final SendableChooser<ControlScheme> controlSchemeChooser = new SendableChooser<>();
+
+  private final BooleanSupplier isSingleplayer = () -> controlSchemeChooser.getSelected() == ControlScheme.SINGLEPLAYER;
+  private final BooleanSupplier isMultiplayer  = () -> controlSchemeChooser.getSelected() != ControlScheme.SINGLEPLAYER;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -87,6 +94,10 @@ public class RobotContainer {
     // we construct the DataManager instance here since it is the
     // absolute soonest we have access to a RobotContainer object
     new DataManager(this);
+    controlSchemeChooser.setDefaultOption("Multiplayer", ControlScheme.MULTIPLAYER);
+    controlSchemeChooser.addOption("Singleplayer", ControlScheme.SINGLEPLAYER);
+    mainTab.add("Control Scheme", controlSchemeChooser)
+       .withWidget(BuiltInWidgets.kComboBoxChooser);
 
     // set sensible default commands
     setDefaultCommands();
@@ -97,6 +108,7 @@ public class RobotContainer {
 
     // configure the controller bindings
     configureBindings();
+    
   }
 
   /**
@@ -130,81 +142,102 @@ public class RobotContainer {
    * testing purposes.
    */
   private void configureBindings() {
-    secondaryController.a().onTrue(
+    Trigger multiplayer  = new Trigger(isMultiplayer);
+    Trigger single = new Trigger(isSingleplayer);
+
+    multiplayer.and(secondaryController.a()).onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L1));
 
-    secondaryController.x().onTrue(
+    multiplayer.and(secondaryController.x()).onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L2));
 
-    secondaryController.y().onTrue(
+    multiplayer.and(secondaryController.y()).onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L3));
 
-    secondaryController.b().onTrue(
+    multiplayer.and(secondaryController.b()).onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L4));
 
-    secondaryController.povRight().onTrue(
+    multiplayer.and(secondaryController.povRight()).onTrue(
         new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.loading));
 
-    secondaryController.start().whileTrue(
+    multiplayer.and(secondaryController.start()).whileTrue(
         new L1DoubleHitScore(subsystemElevator, endEffector, DataManager.instance()));
 
     // Manual intaking/depositing, elevator movement, reef setpoints
-    secondaryController.leftBumper().whileTrue(endEffector.intakeCommand());
-    secondaryController.rightBumper().whileTrue(endEffector.continuousOuttakeCommand());
+    multiplayer.and(secondaryController.leftBumper()).whileTrue(endEffector.intakeCommand());
+    multiplayer.and(secondaryController.rightBumper()).whileTrue(endEffector.continuousOuttakeCommand());
 
-    Trigger leftYUp = new Trigger(() -> secondaryController.getLeftY() < -Elevator.manualThreshold);
-    Trigger leftYDown = new Trigger(() -> secondaryController.getLeftY() > Elevator.manualThreshold);
+    Trigger leftYUp   = new Trigger(() -> isMultiplayer.getAsBoolean() && (secondaryController.getLeftY() < -Elevator.manualThreshold));
+    Trigger leftYDown = new Trigger(() -> isMultiplayer.getAsBoolean() && (secondaryController.getLeftY() >  Elevator.manualThreshold));
+    
 
     leftYUp.whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.upNudgeVelocity));
     leftYDown.whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.downNudgeVelocity));
 
     mainTab.add("Zero Elevator", new ElevatorZeroCommand(subsystemElevator)).withWidget(BuiltInWidgets.kCommand);
 
-    primaryController.b().onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
-    primaryController.a().whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
-    primaryController.leftBumper().onTrue(new ElevatorZeroCommand(subsystemElevator));
+    multiplayer.and(primaryController.b()).onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
+    multiplayer.and(primaryController.a()).whileTrue(new CommandSwerveXWheels(subsystemSwerveDrivetrain));
+    multiplayer.and(primaryController.leftBumper()).onTrue(new ElevatorZeroCommand(subsystemElevator));
 
-    primaryController.x().or(primaryController.rightBumper())
+    multiplayer.and(primaryController.x().or(primaryController.rightBumper()))
         .onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.store));
     
     // reef automatics
-    primaryController.povUpRight().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povUpRight().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L4,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.povRight().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povRight().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L3,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.povDownRight().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povDownRight().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(false, ElevatorPositions.L2,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.povDownLeft().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povDownLeft().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L2,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.povLeft().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povLeft().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L3,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
-    primaryController.povUpLeft().and(primaryController.y()).onTrue(
+    multiplayer.and(primaryController.povUpLeft().and(primaryController.y())).onTrue(
         PositionUtils.moveToNearestScorePositionCommand(true, ElevatorPositions.L4,
             subsystemSwerveDrivetrain, subsystemElevator)
     );
     
     // debug info
-    secondaryController.povUp()
+    multiplayer.and(secondaryController.povUp())
         .onTrue(
             new GetCameraOffset(new PhotonCamera("FrontLeftCamera"),
                 new Transform3d(new Pose3d(),
                     new Pose3d(1, 0, Units.inchesToMeters(11.8),
                         new Rotation3d(Rotation2d.fromDegrees(180))))));
-    secondaryController.povDown().onTrue(new CommandSwerveGetOffset(subsystemSwerveDrivetrain));
+    multiplayer.and(secondaryController.povDown()).onTrue(new CommandSwerveGetOffset(subsystemSwerveDrivetrain));
+    
+        // SINGLEPLAYER 
+    Trigger lTrigHeld = new Trigger(() -> isSingleplayer.getAsBoolean() && primaryController.getLeftTriggerAxis()  > 0.5);
+    Trigger rTrigHeld = new Trigger(() -> isSingleplayer.getAsBoolean() && primaryController.getRightTriggerAxis() > 0.5);
+    lTrigHeld.whileTrue(endEffector.intakeCommand());
+    rTrigHeld.whileTrue(endEffector.continuousOuttakeCommand());
 
-    // jump button
-    mainTab.add(new ElevatorJumpCommand(subsystemElevator));
-    mainTab.add(new ElevatorEjectCommand(subsystemElevator));
+    single.and(primaryController.leftBumper()).onTrue(new ElevatorZeroCommand(subsystemElevator));
+
+    single.and(primaryController.start()).onTrue(Commands.runOnce(commandSwerveTeleopDrive::toggleFieldRelative));
+
+    single.and(primaryController.a()).onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.store));
+    single.and(primaryController.b()).onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L2));
+    single.and(primaryController.x()).onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L3));
+    single.and(primaryController.y()).onTrue(new ElevatorMoveToPositionCommand(subsystemElevator, ElevatorPositions.L4));
+
+    single.and(primaryController.povUp())
+        .whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.upNudgeVelocity));
+    single.and(primaryController.povDown())
+        .whileTrue(new ElevatorNudgeCommand(subsystemElevator, Constants.Elevator.Control.downNudgeVelocity));
+
   }
 
   /**

@@ -42,6 +42,7 @@ public class CommandSwerveTeleopDrive extends Command {
     this.fieldRelative = !this.fieldRelative;
   }
 
+
   @Override
   public void initialize() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
@@ -69,6 +70,7 @@ public class CommandSwerveTeleopDrive extends Command {
         .limitSpeed(true).limitAccelaration(true);
     drivetrain.setControlRequest(request);
   }
+
 
   @Override
   public void end(boolean interrupted) {
